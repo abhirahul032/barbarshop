@@ -1,4 +1,4 @@
- <?php $user = auth()->user(); ?>
+ <?php $user =auth()->guard('store')->user(); ?>
         <div class="app-menu navbar-menu">
             <!-- LOGO -->
             <div class="navbar-brand-box">
@@ -30,14 +30,14 @@
                     <span class="d-flex align-items-center gap-2">
                         <img class="rounded header-profile-user" src="{{ asset('assets/images/users/avatar-1.jpg') }}" alt="Header Avatar">
                         <span class="text-start">
-                            <span class="d-block fw-medium sidebar-user-name-text"><?php echo $user->name; ?></span>
+                            <span class="d-block fw-medium sidebar-user-name-text">{{ auth()->guard('store')->user()->name ?? '' }}</span>
                             <span class="d-block fs-14 sidebar-user-name-sub-text"><i class="ri ri-circle-fill fs-10 text-success align-baseline"></i> <span class="align-middle">Online</span></span>
                         </span>
                     </span>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <!-- item-->
-                    <h6 class="dropdown-header">Welcome <?php echo $user->name; ?>!</h6>
+                    <h6 class="dropdown-header">Welcome {{ auth()->guard('store')->user()->name ?? '' }}!</h6>
                    
                     <a class="dropdown-item" href="{{ route('store.logout') }}"><i class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i> <span class="align-middle" data-key="t-logout">Logout</span></a>
                 </div>

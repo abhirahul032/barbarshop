@@ -44,7 +44,7 @@ return [
         
         'store' => [
             'driver' => 'session',
-            'provider' => 'store',
+            'provider' => 'store',            
         ],
         
         'web' => [

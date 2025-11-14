@@ -1,4 +1,4 @@
- <?php $user = auth()->user(); ?>
+ <?php $user = auth()->guard('admin')->user();  ?>
         <div class="app-menu navbar-menu">
             <!-- LOGO -->
             <div class="navbar-brand-box">

@@ -16,7 +16,7 @@ class EmployeeController extends Controller
     {
        
         
-        $query = Employee::where('store_id', auth()->user()->id);
+        $query = Employee::where('store_id', auth()->guard('store')->user()->id);
 
         // Search
         if ($request->has('search')) {
@@ -40,7 +40,7 @@ class EmployeeController extends Controller
 
     public function create()
     {
-        $services = Service::where('store_id', auth()->user()->id)->get();
+        $services = Service::where('store_id', auth()->guard('store')->user()->id)->get();
         return view('store.employees.create', compact('services'));
     }
 
@@ -72,7 +72,7 @@ class EmployeeController extends Controller
             $validated['photo'] = $request->file('photo')->store('employee-photos', 'public');
         }
 
-        $validated['store_id'] = auth()->user()->id;
+        $validated['store_id'] = auth()->guard('store')->user()->id;
         $validated['working_days'] = $validated['working_days'];
 
         $employee = Employee::create($validated);
@@ -100,7 +100,7 @@ class EmployeeController extends Controller
     public function edit(Employee $employee)
     {
         //$this->authorize('update', $employee);
-        $services = Service::where('store_id', auth()->user()->id)->get();
+        $services = Service::where('store_id', auth()->guard('store')->user()->id)->get();
         return view('store.employees.edit', compact('employee', 'services'));
     }
 

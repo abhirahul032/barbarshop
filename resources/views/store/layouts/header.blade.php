@@ -1,4 +1,4 @@
- <?php $user = auth()->user(); ?>
+ <?php $user = auth()->guard('store')->user(); ?>
 <header id="page-topbar">
     <div class="layout-width">
         <div class="navbar-header">
@@ -630,7 +630,7 @@
                         <span class="d-flex align-items-center">
                             <img class="rounded-circle header-profile-user" src="{{ asset('assets/images/users/avatar-1.jpg') }}" alt="Header Avatar">
                             <span class="text-start ms-xl-2">
-                                <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text"><?php echo $user->name ?></span>
+                                <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">{{ auth()->guard('store')->user()->name ?? '' }}</span>
                                 <span class="d-none d-xl-block ms-1 fs-12 user-name-sub-text">Store Owner</span>
                             </span>
                         </span>
@@ -639,7 +639,7 @@
                        
                        
                         <!-- item-->
-                        <h6 class="dropdown-header">Welcome <?php echo $user->name ?>!</h6>
+                        <h6 class="dropdown-header">Welcome {{ auth()->guard('store')->user()->name ?? '' }}!</h6>
 
                        
                         <a class="dropdown-item" href=""><i class="mdi mdi-lifebuoy text-muted fs-16 align-middle me-1"></i> <span class="align-middle">Help</span></a>
