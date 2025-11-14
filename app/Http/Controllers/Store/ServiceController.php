@@ -50,7 +50,6 @@ class ServiceController extends Controller
             'duration_minutes' => 'required|integer|min:1',
             'category' => 'required|string|max:255',
         ]);
-
         $validated['store_id'] = auth()->guard('store')->user()->id;
         Service::create($validated);
 
