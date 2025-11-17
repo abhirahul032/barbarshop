@@ -13,6 +13,12 @@
 
     <meta charset="utf-8" />
     <title>@yield('title') | Admin Panel</title>
+    
+     <script>
+        // Set the base path for assets
+        window.assetPath = "{{ asset('') }}";
+    </script>
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Favicon -->
@@ -42,6 +48,7 @@
 
     <!-- Custom Css-->
     <link href="{{ asset('assets/css/custom.min.css') }}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     @stack('css')
     @yield('css')
 </head>
@@ -68,6 +75,16 @@
 <script src="{{ asset('assets/libs/node-waves/waves.min.js') }}"></script>
 <script src="{{ asset('assets/libs/feather-icons/feather.min.js') }}"></script>
 <script src="{{ asset('assets/js/pages/plugins/lord-icon-2.1.0.js') }}"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">-->
+
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">-->
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">-->
+
 <script src="{{ asset('assets/js/plugins.js') }}"></script>
 
 @stack('js')
