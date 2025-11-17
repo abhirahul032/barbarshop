@@ -98,11 +98,13 @@
                     <td>{{ $p->duration }}</td>
                     <td>
                         <div class="btn-group" role="group">
-                            <a href="{{ route('admin.package.show', $p->id) }}" class=""> <i class="ri-eye-fill align-bottom me-2 text-muted"></i></a>
-                            <a href="{{ route('admin.package.edit', $p->id) }}" class=""><i class="ri-pencil-fill align-bottom me-2 text-muted"></i> </a>
-                            <form action="{{ route('admin.package.destroy', $p->id) }}" method="POST" class="">
+                            <a href="{{ route('admin.package.show', $p->id) }}" class="btn btn-sm btn-outline-primary"> <i class="ri-eye-fill"></i> </a>
+                            <a href="{{ route('admin.package.edit', $p->id) }}" class="btn btn-sm btn-outline-secondary"><i class="ri-pencil-fill"></i> </a>
+                            <form action="{{ route('admin.package.destroy', $p->id) }}" method="POST" class="d-inline">
                                 @csrf @method('DELETE')
-                                <button style="border:0px;" class="" onclick="return confirm('Are you sure you want to delete this package?')"><i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i></button>
+                                <button class="btn btn-sm btn-outline-danger"  onclick="return confirm('Are you sure you want to delete this package?')">
+                                     <i class="ri-delete-bin-fill"></i>
+                                </button>
                             </form>
                         </div>
                     </td>

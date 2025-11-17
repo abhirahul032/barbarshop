@@ -2,6 +2,16 @@
 
 @section('title','Edit Store')
 
+
+   
+@push('js')    
+<script src="{{ asset('assets/libs/multi.js/multi.min.js') }}"></script>   
+<script src="{{ asset('assets/libs/%40tarekraafat/autocomplete.js/autoComplete.min.js') }}"></script>   
+<script src="{{ asset('assets/js/pages/form-advanced.init.js') }}"></script>   
+<script src="{{ asset('assets/js/pages/form-input-spin.init.js') }}"></script>   
+<script src="{{ asset('assets/js/pages/flag-input.init.js') }}"></script>
+@endpush
+
 @section('content')
 
 <div class="d-flex justify-content-between mb-3">

@@ -10,8 +10,7 @@ class BusinessTypeController extends Controller
 {
     public function index(Request $request)
     {
-        $query = BusinessType::query();
-        
+        $query = BusinessType::query();        
         // Search functionality
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
@@ -74,7 +73,11 @@ class BusinessTypeController extends Controller
 
     public function show(BusinessType $businessType)
     {
-        return view('admin.business-type.view', compact('businessType'));
+         // Load global services for this business type with pagination
+        $globalServices = $businessType->globalServices()->orderBy('created_at', 'desc')->paginate(10);
+       
+        return view('admin.business-type.view', compact('businessType', 'globalServices'));
+        #return view('admin.business-type.view', compact('businessType'));
     }
 
     public function edit(BusinessType $businessType)

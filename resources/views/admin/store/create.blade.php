@@ -2,6 +2,14 @@
 
 @section('title','Create Store')
 
+@push('js')    
+<script src="assets/libs/multi.js/multi.min.js"></script>   
+<script src="assets/libs/%40tarekraafat/autocomplete.js/autoComplete.min.js"></script>   
+<script src="assets/js/pages/form-advanced.init.js"></script>   
+<script src="assets/js/pages/form-input-spin.init.js"></script>   
+<script src="assets/js/pages/flag-input.init.js"></script>
+@endpush
+
 @section('content')
 
 <div class="d-flex justify-content-between mb-3">

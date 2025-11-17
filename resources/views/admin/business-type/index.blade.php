@@ -103,11 +103,17 @@
                     </td>
                     <td>
                         <div class="btn-group" role="group">
-                            <a href="{{ route('admin.business-type.show', $type->id) }}" class=""><i class="ri-eye-fill align-bottom me-2 text-muted"></i></a>
-                            <a href="{{ route('admin.business-type.edit', $type->id) }}" class=""><i class="ri-pencil-fill align-bottom me-2 text-muted"></i></a>
+                            <a href="{{ route('admin.business-type.show', $type->id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="ri-eye-fill"></i>
+                            </a>
+                            <a href="{{ route('admin.business-type.edit', $type->id) }}" class="btn btn-sm btn-outline-secondary">
+                               <i class="ri-pencil-fill"></i>
+                            </a>
                             <form action="{{ route('admin.business-type.destroy', $type->id) }}" method="POST" class="d-inline">
                                 @csrf @method('DELETE')
-                                <button  style="border:0px;" class=""  onclick="return confirm('Are you sure you want to delete this business type?')"><i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i></button>
+                                <button  class="btn btn-sm btn-outline-danger"   onclick="return confirm('Are you sure you want to delete this business type?')">
+                                    <i class="ri-delete-bin-fill"></i>
+                                </button>
                             </form>
                         </div>
                     </td>

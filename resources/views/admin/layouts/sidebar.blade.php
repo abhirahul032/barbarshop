@@ -62,12 +62,16 @@
                             </a>                            
                         </li>
                         
-                         <li class="nav-item">
+                        <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ route('admin.business-type.index') }}">
                                  <i class="ri-layout-grid-line"></i> <span data-key="t-business-type">Business type</span>
                             </a>                            
                         </li>
-                        
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="{{ route('admin.global-service.index') }}">
+                                 <i class="ri-layout-grid-line"></i> <span data-key="t-business-type">Global Services</span>
+                            </a>                            
+                        </li>
                         
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ route('admin.store.index') }}">
