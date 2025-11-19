@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 class Store extends Model
 {
+    use Notifiable;
+
     protected $fillable = [
         'name',
         'logo',
@@ -24,6 +27,28 @@ class Store extends Model
         'end_date' => 'date',
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'password' => 'hashed',
+        ];
+    }
+
     public function package()
     {
         return $this->belongsTo(Package::class);
@@ -35,9 +60,19 @@ class Store extends Model
         return $this->belongsToMany(BusinessType::class, 'business_type_store');
     }
 
+    // One-to-many relationship with Service
+    public function services()
+    {
+        return $this->hasMany(Service::class);
+    }
+
     // Helper method to get business type names
     public function getBusinessTypeNamesAttribute()
     {
         return $this->businessTypes->pluck('name')->implode(', ');
     }
+    public function employees()
+{
+    return $this->hasMany(Employee::class);
+}
 }

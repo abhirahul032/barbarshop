@@ -7,18 +7,13 @@ use Illuminate\Http\Request;
 use App\Models\Store;
 use App\Models\Package;
 use App\Models\BusinessType;
+use App\Models\GlobalService;
+use App\Models\Service;
 use Illuminate\Support\Facades\Storage;
+
 class StoreController extends Controller
 {
-    /*
-    public function index()
-    {
-        $stores = Store::with('package')->paginate(20);
-        return view('admin.store.index', compact('stores'));
-    }
-    */
-
-     public function index(Request $request)
+    public function index(Request $request)
     {
         $query = Store::with(['package', 'businessTypes']);
         
@@ -53,6 +48,7 @@ class StoreController extends Controller
         
         return view('admin.store.index', compact('stores', 'sortField', 'sortDirection'));
     }
+
     public function create()
     {
         $packages = Package::all();
@@ -107,17 +103,21 @@ class StoreController extends Controller
 
         $data['password'] = bcrypt($data['password']);
 
-        Store::create($data);
+        // Create the store
+        $store = Store::create($data);
 
         // Sync business types (many-to-many relationship)
         $store->businessTypes()->sync($request->business_types);
 
-         return redirect()->route('admin.store.index')->with('success', 'Store created successfully');
+        // Create services from global services for the selected business types
+        $this->createServicesFromGlobalServices($store, $request->business_types);
+
+        return redirect()->route('admin.store.index')->with('success', 'Store created successfully');
     }
 
     public function show(Store $store)
     {
-        $store->load('businessTypes');
+         $store->load('businessTypes', 'services', 'employees');
         return view('admin.store.view', compact('store'));
     }
     
@@ -139,7 +139,7 @@ class StoreController extends Controller
             'email' => 'required|email|unique:stores,email,' . $store->id,
             'no_of_employees' => 'required|integer|min:1',
             'package_id' => 'required|exists:packages,id',
-             'billing_period' => 'required|in:monthly,yearly',
+            'billing_period' => 'required|in:monthly,yearly',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'business_types' => 'required|array|min:1',
@@ -186,8 +186,25 @@ class StoreController extends Controller
 
         $store->update($data);
 
+        // Get previous business types to detect changes
+        $previousBusinessTypes = $store->businessTypes->pluck('id')->toArray();
+        $newBusinessTypes = $request->business_types;
+
         // Sync business types
-        $store->businessTypes()->sync($request->business_types);
+        $store->businessTypes()->sync($newBusinessTypes);
+
+        // Check if business types changed
+        $businessTypesChanged = count(array_diff($previousBusinessTypes, $newBusinessTypes)) > 0 || 
+                               count(array_diff($newBusinessTypes, $previousBusinessTypes)) > 0;
+
+        // If business types changed, update services
+        if ($businessTypesChanged) {
+            // Remove existing services
+            $store->services()->delete();
+            
+            // Create new services from global services for the updated business types
+            $this->createServicesFromGlobalServices($store, $newBusinessTypes);
+        }
 
         return redirect()->route('admin.store.index')->with('success', 'Store updated successfully');
     }
@@ -202,5 +219,42 @@ class StoreController extends Controller
         $store->delete();
         return back()->with('success', 'Store deleted successfully');
     }
-}
 
+    /**
+     * Create services from global services based on selected business types
+     *
+     * @param Store $store
+     * @param array $businessTypeIds
+     * @return void
+     */
+    private function createServicesFromGlobalServices(Store $store, array $businessTypeIds)
+    {
+        // Get active global services for the selected business types
+        $globalServices = GlobalService::whereIn('business_type_id', $businessTypeIds)
+            ->active()
+            ->get();
+
+        $servicesToCreate = [];
+
+        foreach ($globalServices as $globalService) {
+            $servicesToCreate[] = [
+                'store_id' => $store->id,
+                'name' => $globalService->name,
+                'description' => $globalService->description,
+                'price' => $globalService->price,
+                'type' => $globalService->type,
+                'hourly_price' => $globalService->hourly_price,
+                'duration_minutes' => $globalService->duration_minutes,
+                'category' => $globalService->category,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        // Insert all services in batch
+        if (!empty($servicesToCreate)) {
+            Service::insert($servicesToCreate);
+        }
+    }
+}

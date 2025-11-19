@@ -52,30 +52,30 @@
                         <li class="menu-title"><span data-key="t-menu">Menu</span></li>
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ route('admin.dashboard') }}">
-                                 <i class="ri-dashboard-2-line"></i> <span data-key="t-dashboards">Dashboards</span>
+                                 <i class="bx bxs-dashboard"></i> <span data-key="t-dashboards">Dashboards</span>
                             </a>                            
                         </li> 
                         
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ route('admin.package.index') }}">
-                                 <i class="ri-dashboard-2-line"></i> <span data-key="t-package">Packages</span>
+                                 <i class="bx bx-package"></i> <span data-key="t-package">Packages</span>
                             </a>                            
                         </li>
                         
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ route('admin.business-type.index') }}">
-                                 <i class="ri-layout-grid-line"></i> <span data-key="t-business-type">Business type</span>
+                                 <i class="bx bxs-business"></i> <span data-key="t-business-type">Business type</span>
                             </a>                            
                         </li>
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ route('admin.global-service.index') }}">
-                                 <i class="ri-layout-grid-line"></i> <span data-key="t-business-type">Global Services</span>
+                                 <i class="ri-at-fill"></i> <span data-key="t-business-type">Global Services</span>
                             </a>                            
                         </li>
                         
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ route('admin.store.index') }}">
-                                 <i class="ri-account-circle-line"></i> <span data-key="t-store">Stores</span>
+                                 <i class="ri-app-store-line"></i> <span data-key="t-store">Stores</span>
                             </a>                            
                         </li> 
                        <li class="nav-item">

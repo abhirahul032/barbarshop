@@ -68,9 +68,18 @@
 <script src="{{ asset('assets/libs/node-waves/waves.min.js') }}"></script>
 <script src="{{ asset('assets/libs/feather-icons/feather.min.js') }}"></script>
 <script src="{{ asset('assets/js/pages/plugins/lord-icon-2.1.0.js') }}"></script>
-<script src="{{ asset('assets/js/plugins.js') }}"></script>
 
-@stack('js')
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">-->
+
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">-->
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">-->
+<!--<script src="{{ asset('assets/js/plugins.js') }}"></script>-->
+
+@stack('scripts')
 @yield('js')
 
 

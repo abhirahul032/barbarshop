@@ -5,6 +5,7 @@ use App\Http\Controllers\Store\AuthController;
 use App\Http\Controllers\Store\EmployeeController;
 use App\Http\Controllers\Store\ServiceController;
 use App\Http\Controllers\Store\PageController;
+use App\Http\Controllers\Store\TeamMemberController;
 Route::prefix('store')
     ->name('store.')
     ->middleware('web')
@@ -29,6 +30,24 @@ Route::prefix('store')
             Route::get('dashboard', function () {
                 return view('store.dashboard');
             })->name('dashboard');
+            
+            // Team Members Routes (Complete CRUD)
+            Route::prefix('team-members')->name('team-members.')->group(function () {
+                Route::get('/', [TeamMemberController::class, 'index'])->name('index');
+                Route::get('/create', [TeamMemberController::class, 'create'])->name('create');
+                Route::post('/', [TeamMemberController::class, 'store'])->name('store');
+                Route::get('/{teamMember}', [TeamMemberController::class, 'show'])->name('show');
+                Route::get('/{teamMember}/edit', [TeamMemberController::class, 'edit'])->name('edit');
+                Route::put('/{teamMember}', [TeamMemberController::class, 'update'])->name('update');
+                Route::delete('/{teamMember}', [TeamMemberController::class, 'destroy'])->name('destroy');
+                
+                // Additional routes for addresses and emergency contacts
+                Route::post('/{teamMember}/addresses', [TeamMemberController::class, 'addAddress'])->name('addresses.store');
+                Route::post('/{teamMember}/emergency-contacts', [TeamMemberController::class, 'addEmergencyContact'])->name('emergency-contacts.store');
+                Route::delete('/{teamMember}/addresses/{address}', [TeamMemberController::class, 'removeAddress'])->name('addresses.destroy');
+                Route::delete('/{teamMember}/emergency-contacts/{emergencyContact}', [TeamMemberController::class, 'removeEmergencyContact'])->name('emergency-contacts.destroy');
+            });
+            
             
             Route::resource('employees', EmployeeController::class);    
             Route::resource('services', ServiceController::class);
