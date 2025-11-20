@@ -8,6 +8,7 @@ use App\Models\Store;
 use App\Models\Service;
 use App\Models\Address;
 use App\Models\EmergencyContact;
+use App\Models\Country;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -29,8 +30,10 @@ class TeamMemberController extends Controller // Now this will work
         $storeId = auth()->guard('store')->user()->id;
         $services = Service::where('store_id', $storeId)->where('is_active', true)->get();
         $locations = Store::where('id', $storeId)->get();
+        $Country=Country::all();
+        echo '<pre>';print_r($Country);echo '</pre>';exit;
         
-        return view('store.team-members.create', compact('services', 'locations'));
+        return view('store.team-members.create', compact('services', 'locations','Country'));
     }
 
     public function store(Request $request)

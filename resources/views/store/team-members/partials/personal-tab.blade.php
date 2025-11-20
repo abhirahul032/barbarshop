@@ -3,12 +3,54 @@
         <h5 class="mb-0">Profile</h5>
     </div>
     <div class="section-body">
+        <style>
+        .logo-preview {
+        width: 120px;
+        height: 120px;
+        border: 2px dashed #cbd5e0;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .logo-preview:hover {
+        border-color: #667eea;
+        background: #f0f4ff;
+    }
+    
+    .logo-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: cover;
+    }
+        </style>
         
-        {{-- Profile Picture/Image Field --}}
         <div class="mb-4">
+                <label class="form-label">Profile Picture</label>
+                <div class="logo-preview-container text-center">
+                    <input type="file" name="profile_picture" id="logoInput" class="d-none" accept="image/*" />
+                    <label for="logoInput" class="logo-preview mx-auto">
+                        <div class="logo-placeholder text-center">
+                            <i class="fa fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                            <div class="small text-muted">Click to upload logo</div>
+                        </div>
+                    </label>
+                    <div class="form-text text-center mt-2">Accepted formats: JPEG, PNG, JPG, GIF. Max size: 2MB</div>
+                </div>
+                @error('profile_picture')
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
+            </div>
+        
+<!--        <div class="mb-4">
             <label for="profile_picture" class="form-label">Profile Picture</label>
             <div class="d-flex align-items-center">
-                {{-- Placeholder for current image or avatar --}}
+               
                 <div class="me-3" style="width: 80px; height: 80px; border: 1px solid #ccc; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center;">
                     @if(isset($teamMember->profile_picture) && $teamMember->profile_picture)
                         <img src="{{ asset($teamMember->profile_picture) }}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover;">
@@ -16,13 +58,13 @@
                         <span class="text-muted">No Image</span>
                     @endif
                 </div>
-                {{-- File Input --}}
+                
                 <input class="form-control" type="file" id="profile_picture" name="profile_picture" accept="image/*">
             </div>
             @if(isset($teamMember->profile_picture) && $teamMember->profile_picture)
                 <small class="text-muted mt-1 d-block">Upload a new image to replace the current one.</small>
             @endif
-        </div>
+        </div>-->
         
         <div class="row g-3">
             {{-- Row 1: First Name, Last Name --}}
@@ -192,7 +234,7 @@
     </div>
 </div>
 
----
+
 
 <div class="card section-card">
     <div class="section-header">
@@ -203,3 +245,29 @@
                   placeholder="Add a private note only viewable in the team member list">{{ old('notes', $teamMember->notes ?? '') }}</textarea>
     </div>
 </div>
+
+
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+       
+       
+        
+
+        // Logo preview
+        $('#logoInput').change(function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('.logo-preview').html(`<img src="${e.target.result}" alt="Personal image preview">`);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        
+    });
+</script>
+@endpush

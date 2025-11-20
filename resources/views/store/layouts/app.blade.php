@@ -87,7 +87,7 @@
 
 <script src="{{ asset('assets/js/plugins.js') }}"></script>
 
-@stack('js')
+@stack('scripts')
 @yield('js')
 
 
