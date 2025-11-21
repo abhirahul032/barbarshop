@@ -10,12 +10,12 @@
                     <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addShiftModal">
                         <i class="fa fa-plus me-2"></i>Add Shift
                     </button>
-                    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addBulkShiftModal">
+<!--                    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addBulkShiftModal">
                         <i class="fa fa-layer-group me-2"></i>Add Multiple Shifts
                     </button>
                     <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#repeatingShiftModal">
                         <i class="fa fa-repeat me-2"></i>Set Repeating Shifts
-                    </button>
+                    </button>-->
                 </div>
             </div>
         </div>
@@ -216,8 +216,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function fetchShiftData(shiftId) {
-        // Use the named route for edit
-        fetch(`{{ route('store.scheduled-shifts.edit', '') }}/${shiftId}`)
+        // Use relative URL instead of absolute
+        const url = url_front+`store/scheduled-shifts/${shiftId}/edit`;
+        
+        fetch(url)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -240,17 +242,66 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function populateEditForm(shift) {
+        console.log('Raw shift data for edit:', shift);
+        
         document.getElementById('edit_shift_id').value = shift.id;
-        document.getElementById('edit_shift_date').value = shift.shift_date;
-        document.getElementById('edit_start_time').value = shift.start_time;
-        document.getElementById('edit_end_time').value = shift.end_time;
+        if (shift.shift_date) {
+            const date = new Date(shift.shift_date);
+            const formattedDate = date.toISOString().split('T')[0];
+            document.getElementById('edit_shift_date').value = formattedDate;
+        }
+        
+        // Format time inputs properly
+        document.getElementById('edit_start_time').value = formatTimeForInput(shift.start_time);
+        document.getElementById('edit_end_time').value = formatTimeForInput(shift.end_time);
+        
         document.getElementById('edit_shift_type').value = shift.shift_type;
         document.getElementById('edit_notes').value = shift.notes || '';
+        
+        // Debug: Check what values were set
+        console.log('Form values after population:');
+        console.log('Start time:', document.getElementById('edit_start_time').value);
+        console.log('End time:', document.getElementById('edit_end_time').value);
+    }
+
+    function formatTimeForInput(timeString) {
+        if (!timeString) return '';
+        
+        console.log('Formatting time:', timeString);
+        
+        // If it's already in HH:MM format
+        if (timeString.match(/^\d{1,2}:\d{2}$/)) {
+            // Ensure 2-digit hour
+            const [hours, minutes] = timeString.split(':');
+            return `${hours.padStart(2, '0')}:${minutes}`;
+        }
+        
+        // If it's in HH:MM:SS format
+        if (timeString.match(/^\d{1,2}:\d{2}:\d{2}$/)) {
+            const [hours, minutes] = timeString.split(':');
+            return `${hours.padStart(2, '0')}:${minutes}`;
+        }
+        
+        // If it's a full datetime string
+        if (timeString.includes('T') || timeString.includes(' ')) {
+            try {
+                const date = new Date(timeString);
+                if (!isNaN(date.getTime())) {
+                    return date.toTimeString().substring(0, 5);
+                }
+            } catch (e) {
+                console.error('Error parsing datetime:', e);
+            }
+        }
+        
+        return timeString;
     }
 
     function deleteShift(shiftId) {
-        // Use the named route for destroy
-        fetch(`{{ route('store.scheduled-shifts.destroy', '') }}/${shiftId}`, {
+        // Use relative URL
+        const url = url_front+`store/scheduled-shifts/${shiftId}`;
+        
+        fetch(url, {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -282,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const formData = new FormData(this);
         
-        fetch('{{ route("store.scheduled-shifts.store") }}', {
+        fetch(url_front+'store/scheduled-shifts', {
             method: 'POST',
             body: formData,
             headers: {
@@ -296,9 +347,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 location.reload();
             } else {
                 alert('Error adding shift: ' + data.message);
-            if (data.errors) {
-                console.error('Validation errors:', data.errors);
-            }
+                if (data.errors) {
+                    console.error('Validation errors:', data.errors);
+                }
             }
         })
         .catch(error => {
@@ -314,8 +365,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const shiftId = document.getElementById('edit_shift_id').value;
         const formData = new FormData(this);
         
-        // Use the named route for update
-        fetch(`{{ route('store.scheduled-shifts.update', '') }}/${shiftId}`, {
+        // Use relative URL
+        const url = url_front+`store/scheduled-shifts/${shiftId}`;
+        
+        fetch(url, {
             method: 'POST',
             body: formData,
             headers: {

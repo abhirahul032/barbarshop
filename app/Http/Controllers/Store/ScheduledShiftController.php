@@ -12,42 +12,42 @@ use Carbon\Carbon;
 class ScheduledShiftController extends Controller
 {
     public function index(Request $request)
-{
-    $storeId = auth()->guard('store')->user()->id;
-    
-    // Get the week from request or default to current week
-    $weekStart = $request->get('week_start') 
-        ? Carbon::parse($request->get('week_start'))
-        : Carbon::now()->startOfWeek();
+    {
+        $storeId = auth()->guard('store')->user()->id;
         
-    $weekEnd = $weekStart->copy()->endOfWeek();
+        // Get the week from request or default to current week
+        $weekStart = $request->get('week_start') 
+            ? Carbon::parse($request->get('week_start'))
+            : Carbon::now()->startOfWeek();
+            
+        $weekEnd = $weekStart->copy()->endOfWeek();
 
-    // Debug: Check the date range
-    \Log::info("Fetching shifts for week: {$weekStart->format('Y-m-d')} to {$weekEnd->format('Y-m-d')}");
+        // Debug: Check the date range
+        \Log::info("Fetching shifts for week: {$weekStart->format('Y-m-d')} to {$weekEnd->format('Y-m-d')}");
 
-    $teamMembers = TeamMember::with(['scheduledShifts' => function($query) use ($weekStart, $weekEnd) {
-        $query->whereBetween('shift_date', [$weekStart, $weekEnd])
-              ->orderBy('shift_date')
-              ->orderBy('start_time');
-    }])->where('store_id', $storeId)
-       ->where('is_active', true)
-       ->get();
+        $teamMembers = TeamMember::with(['scheduledShifts' => function($query) use ($weekStart, $weekEnd) {
+            $query->whereBetween('shift_date', [$weekStart, $weekEnd])
+                  ->orderBy('shift_date')
+                  ->orderBy('start_time');
+        }])->where('store_id', $storeId)
+           ->where('is_active', true)
+           ->get();
 
-    // Debug: Check what shifts are being loaded
-    foreach ($teamMembers as $member) {
-        \Log::info("Team Member {$member->id}: {$member->first_name} has " . $member->scheduledShifts->count() . " shifts");
-        foreach ($member->scheduledShifts as $shift) {
-            \Log::info("Shift: {$shift->shift_date} {$shift->start_time}-{$shift->end_time}");
+        // Debug: Check what shifts are being loaded
+        foreach ($teamMembers as $member) {
+            \Log::info("Team Member {$member->id}: {$member->first_name} has " . $member->scheduledShifts->count() . " shifts");
+            foreach ($member->scheduledShifts as $shift) {
+                \Log::info("Shift: {$shift->shift_date} {$shift->start_time}-{$shift->end_time}");
+            }
         }
-    }
 
-    $weekDays = [];
-    for ($i = 0; $i < 7; $i++) {
-        $weekDays[] = $weekStart->copy()->addDays($i);
-    }
+        $weekDays = [];
+        for ($i = 0; $i < 7; $i++) {
+            $weekDays[] = $weekStart->copy()->addDays($i);
+        }
 
-    return view('store.scheduled-shifts.index', compact('teamMembers', 'weekDays', 'weekStart', 'weekEnd'));
-}
+        return view('store.scheduled-shifts.index', compact('teamMembers', 'weekDays', 'weekStart', 'weekEnd'));
+    }
 
     public function store(Request $request): JsonResponse
     {
@@ -94,76 +94,90 @@ class ScheduledShiftController extends Controller
     }
 
     public function update(Request $request, ScheduledShift $scheduledShift): JsonResponse
-{
-    try {
-        $this->authorizeShift($scheduledShift);
+    {
+        try {
+            $this->authorizeShift($scheduledShift);
 
-        $validated = $request->validate([
-            'shift_date' => 'required|date',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'shift_type' => 'required|in:regular,overtime,holiday',
-            'notes' => 'nullable|string',
-        ]);
+            $validated = $request->validate([
+                'shift_date' => 'required|date',
+                'start_time' => 'required|date_format:H:i',
+                'end_time' => 'required|date_format:H:i|after:start_time',
+                'shift_type' => 'required|in:regular,overtime,holiday',
+                'notes' => 'nullable|string',
+            ]);
 
-        $scheduledShift->update($validated);
+            $scheduledShift->update($validated);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Shift updated successfully',
-            'data' => $scheduledShift->load('teamMember')
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Shift updated successfully',
+                'data' => $scheduledShift->load('teamMember')
+            ]);
 
-    } catch (\Exception $e) {
-        \Log::error('Failed to update shift: ' . $e->getMessage());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to update shift: ' . $e->getMessage()
-        ], 500);
+        } catch (\Exception $e) {
+            \Log::error('Failed to update shift: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update shift: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
-public function edit(ScheduledShift $scheduledShift): JsonResponse
-{
-    try {
-        $this->authorizeShift($scheduledShift);
-        
-        return response()->json([
-            'success' => true,
-            'data' => $scheduledShift
-        ]);
 
-    } catch (\Exception $e) {
-        \Log::error('Failed to fetch shift data: ' . $e->getMessage());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to fetch shift data: ' . $e->getMessage()
-        ], 500);
+    public function edit(ScheduledShift $scheduledShift): JsonResponse
+    {
+        try {
+            $this->authorizeShift($scheduledShift);
+            
+            // Format the times to ensure they work with HTML time inputs
+            $formattedShift = [
+                'id' => $scheduledShift->id,
+                'shift_date' => $scheduledShift->shift_date,
+                'start_time' => $this->formatTimeForHtml($scheduledShift->start_time),
+                'end_time' => $this->formatTimeForHtml($scheduledShift->end_time),
+                'shift_type' => $scheduledShift->shift_type,
+                'notes' => $scheduledShift->notes,
+            ];
+
+            \Log::info('Formatted shift data for edit:', $formattedShift);
+            
+            return response()->json([
+                'success' => true,
+                'data' => $formattedShift
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Failed to fetch shift data: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch shift data: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
+
     // The destroy method you already have:
-public function destroy(ScheduledShift $scheduledShift): JsonResponse
-{
-    try {
-        $this->authorizeShift($scheduledShift);
-        
-        $scheduledShift->delete();
+    public function destroy(ScheduledShift $scheduledShift): JsonResponse
+    {
+        try {
+            $this->authorizeShift($scheduledShift);
+            
+            $scheduledShift->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Shift deleted successfully'
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Shift deleted successfully'
+            ]);
 
-    } catch (\Exception $e) {
-        \Log::error('Failed to delete shift: ' . $e->getMessage());
-        
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to delete shift: ' . $e->getMessage()
-        ], 500);
+        } catch (\Exception $e) {
+            \Log::error('Failed to delete shift: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete shift: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
     public function bulkStore(Request $request): JsonResponse
     {
@@ -246,6 +260,43 @@ public function destroy(ScheduledShift $scheduledShift): JsonResponse
         $storeId = auth()->guard('store')->user()->id;
         if ($scheduledShift->teamMember->store_id !== $storeId) {
             abort(403, 'Unauthorized action.');
+        }
+    }
+
+    /**
+     * Format time for HTML time input (HH:MM)
+     */
+    private function formatTimeForHtml($time): string
+    {
+        if (empty($time)) {
+            return '';
+        }
+
+        // If it's already in HH:MM format
+        if (preg_match('/^\d{1,2}:\d{2}$/', $time)) {
+            // Ensure 2-digit hour
+            $parts = explode(':', $time);
+            return sprintf('%02d:%s', $parts[0], $parts[1]);
+        }
+
+        // If it's in HH:MM:SS format
+        if (preg_match('/^\d{1,2}:\d{2}:\d{2}$/', $time)) {
+            $parts = explode(':', $time);
+            return sprintf('%02d:%s', $parts[0], $parts[1]);
+        }
+
+        // If it's a Carbon instance or DateTime
+        if ($time instanceof \Carbon\Carbon || $time instanceof \DateTime) {
+            return $time->format('H:i');
+        }
+
+        // Try to parse as time
+        try {
+            $carbonTime = Carbon::parse($time);
+            return $carbonTime->format('H:i');
+        } catch (\Exception $e) {
+            \Log::warning("Could not parse time: {$time}");
+            return '';
         }
     }
 }

@@ -318,22 +318,22 @@ $currentRoute = Route::currentRouteName();
 
                 <!-- Team Menu -->
                 <li class="nav-item">
-                    <a class="nav-link menu-link {{ str_contains($currentRoute, 'store.team-members.') || str_contains($currentRoute, 'store.page.team.') ? 'active' : '' }}" 
+                    <a class="nav-link menu-link {{ str_contains($currentRoute, 'store.team-members.') || str_contains($currentRoute, 'store.page.team.') || str_contains($currentRoute, 'store.scheduled-shifts.') ? 'active' : '' }}" 
                        href="#teamside" 
                        data-bs-toggle="collapse" 
                        role="button" 
-                       aria-expanded="{{ str_contains($currentRoute, 'store.team-members.') || str_contains($currentRoute, 'store.page.team.') ? 'true' : 'false' }}" 
+                       aria-expanded="{{ str_contains($currentRoute, 'store.team-members.') || str_contains($currentRoute, 'store.page.team.') || str_contains($currentRoute, 'store.scheduled-shifts.') ? 'true' : 'false' }}" 
                        aria-controls="teamside">
                        <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M30.6 18.8a1 1 0 0 1-1.4-.2A6.45 6.45 0 0 0 24 16a1 1 0 0 1 0-2 3 3 0 1 0-2.905-3.75 1 1 0 0 1-1.937-.5 5 5 0 1 1 8.217 4.939 8.5 8.5 0 0 1 3.429 2.71A1 1 0 0 1 30.6 18.8m-6.735 7.7a1 1 0 1 1-1.73 1 7.125 7.125 0 0 0-12.27 0 1 1 0 1 1-1.73-1 9 9 0 0 1 4.217-3.74 6 6 0 1 1 7.296 0 9 9 0 0 1 4.217 3.74M16 22a4 4 0 1 0 0-8 4 4 0 0 0 0 8m-7-7a1 1 0 0 0-1-1 3 3 0 1 1 2.905-3.75 1 1 0 0 0 1.938-.5 5 5 0 1 0-8.218 4.939 8.5 8.5 0 0 0-3.425 2.71A1 1 0 1 0 2.8 18.6 6.45 6.45 0 0 1 8 16a1 1 0 0 0 1-1"></path></svg> 
                        <span data-key="t-charts">Team</span>
                     </a>
-                    <div class="collapse menu-dropdown {{ str_contains($currentRoute, 'store.team-members.') || str_contains($currentRoute, 'store.page.team.') ? 'show' : '' }}" id="teamside">
+                    <div class="collapse menu-dropdown {{ str_contains($currentRoute, 'store.team-members.') || str_contains($currentRoute, 'store.page.team.') || str_contains($currentRoute, 'store.scheduled-shifts.')  ? 'show' : '' }}" id="teamside">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
                                 <a href="{{ route('store.team-members.index') }}" class="nav-link {{ str_contains($currentRoute, 'store.team-members.') ? 'active' : '' }}"> Team members </a>
                             </li>
                             <li class="nav-item">
-                                <a href="{{ route('store.page.team.scheduled.shifts') }}" class="nav-link {{ $currentRoute == 'store.page.team.scheduled.shifts' ? 'active' : '' }}"> Scheduled shifts </a>
+                                <a href="{{ route('store.scheduled-shifts.index') }}" class="nav-link {{ $currentRoute == 'store.scheduled-shifts.index' ? 'active' : '' }}"> Scheduled shifts </a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ route('store.page.team.timesheets') }}" class="nav-link {{ $currentRoute == 'store.page.team.timesheets' ? 'active' : '' }}"> Timesheets </a>

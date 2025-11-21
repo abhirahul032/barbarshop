@@ -17,6 +17,7 @@
      <script>
         // Set the base path for assets
         window.assetPath = "{{ asset('') }}";
+        let url_front = "{{ config('global.url_front') }}";
     </script>
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
