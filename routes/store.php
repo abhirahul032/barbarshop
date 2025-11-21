@@ -6,6 +6,7 @@ use App\Http\Controllers\Store\EmployeeController;
 use App\Http\Controllers\Store\ServiceController;
 use App\Http\Controllers\Store\PageController;
 use App\Http\Controllers\Store\TeamMemberController;
+use App\Http\Controllers\Store\ScheduledShiftController;
 Route::prefix('store')
     ->name('store.')
     ->middleware('web')
@@ -31,6 +32,20 @@ Route::prefix('store')
                 return view('store.dashboard');
             })->name('dashboard');
             
+            
+            // Scheduled Shifts Routes
+            // In your scheduled-shifts route group, add these routes:
+Route::prefix('scheduled-shifts')->name('scheduled-shifts.')->group(function () {
+    Route::get('/', [ScheduledShiftController::class, 'index'])->name('index');
+    Route::post('/', [ScheduledShiftController::class, 'store'])->name('store');
+    Route::post('/bulk', [ScheduledShiftController::class, 'bulkStore'])->name('bulk.store');
+    
+    // Add these missing routes:
+    Route::get('/{scheduledShift}/edit', [ScheduledShiftController::class, 'edit'])->name('edit');
+    Route::put('/{scheduledShift}', [ScheduledShiftController::class, 'update'])->name('update');
+    Route::delete('/{scheduledShift}', [ScheduledShiftController::class, 'destroy'])->name('destroy');
+});
+            
             // Team Members Routes (Complete CRUD)
             Route::prefix('team-members')->name('team-members.')->group(function () {
                 Route::get('/', [TeamMemberController::class, 'index'])->name('index');
@@ -39,16 +54,34 @@ Route::prefix('store')
                 Route::get('/{teamMember}', [TeamMemberController::class, 'show'])->name('show');
                 Route::get('/{teamMember}/edit', [TeamMemberController::class, 'edit'])->name('edit');
                 Route::put('/{teamMember}', [TeamMemberController::class, 'update'])->name('update');
+                Route::put('/{teamMember}/services', [TeamMemberController::class, 'updateservices'])->name('updateservices');
+                Route::put('/{teamMember}/settings', [TeamMemberController::class, 'updateSettings'])->name('update-settings');
+                
+                
+                
+                
+                Route::post('/{teamMember}/wages', [TeamMemberController::class, 'storewage'])->name('wages.store'); 
+                Route::post('/{teamMember}/commission', [TeamMemberController::class, 'storeCommission'])->name('commission.store');
+                Route::post('/{teamMember}/payrun', [TeamMemberController::class, 'storePayRun'])->name('payrun.store');
+                Route::post('/{teamMember}/generate-payrun', [TeamMemberController::class, 'generatePayRun'])->name('payrun.generate');
+                         
+                
                 Route::delete('/{teamMember}', [TeamMemberController::class, 'destroy'])->name('destroy');
                 
                 // Additional routes for addresses and emergency contacts
                 Route::post('/{teamMember}/addresses', [TeamMemberController::class, 'addAddress'])->name('addresses.store');
                 Route::post('/{teamMember}/emergency-contacts', [TeamMemberController::class, 'addEmergencyContact'])->name('emergency-contacts.store');
                 Route::delete('/{teamMember}/addresses/{address}', [TeamMemberController::class, 'removeAddress'])->name('addresses.destroy');
+                   // Set primary address route - FIXED NAME
+                Route::post('/{teamMember}/addresses/{address}/set-primary', [TeamMemberController::class, 'setPrimaryAddress'])
+                    ->name('addresses.set-primary'); 
+                
+               
+
                 Route::delete('/{teamMember}/emergency-contacts/{emergencyContact}', [TeamMemberController::class, 'removeEmergencyContact'])->name('emergency-contacts.destroy');
             });
             
-            
+            Route::resource('team-members', TeamMemberController::class);
             Route::resource('employees', EmployeeController::class);    
             Route::resource('services', ServiceController::class);
             

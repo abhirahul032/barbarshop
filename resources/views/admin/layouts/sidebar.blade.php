@@ -72,7 +72,11 @@
                                  <i class="ri-at-fill"></i> <span data-key="t-business-type">Global Services</span>
                             </a>                            
                         </li>
-                        
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="{{ route('admin.countries.index') }}">
+                                 <i class="ri-app-store-line"></i> <span data-key="t-store">Countries</span>
+                            </a>                            
+                        </li> 
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ route('admin.store.index') }}">
                                  <i class="ri-app-store-line"></i> <span data-key="t-store">Stores</span>

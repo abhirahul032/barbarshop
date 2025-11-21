@@ -6,7 +6,7 @@ use App\Http\Controllers\Admin\StoreController;
 use App\Http\Controllers\Admin\PackageController;
 use App\Http\Controllers\Admin\BusinessTypeController;
 use App\Http\Controllers\Admin\GlobalServiceController;
-
+use App\Http\Controllers\Admin\CountryController;
 Route::prefix('admin')
     ->name('admin.')
     ->middleware('web')
@@ -33,6 +33,7 @@ Route::prefix('admin')
             Route::resource('package', PackageController::class);
             Route::resource('business-type', BusinessTypeController::class);
             Route::resource('global-service', GlobalServiceController::class);
+            Route::resource('countries', CountryController::class);
             // Logout
             Route::get('logout', [AuthController::class, 'logout'])->name('logout');
         });

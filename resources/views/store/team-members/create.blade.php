@@ -3,70 +3,24 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3">Add team member</h1>
-    
+   
 </div>
-<style>
-    .tab-content .card{padding: 20px;} 
-</style>
-<form id="teamMemberForm" action="{{ route('store.team-members.store') }}" method="POST">
-    @csrf
-    <div>
-        <a href="{{ route('store.team-members.index') }}" class="btn btn-outline-secondary me-2">Cancel</a>
-        <button type="submit" form="teamMemberForm" class="btn btn-primary">Save Team Member</button>
-    </div>
+
     <div class="row">
         
         <!-- Left Sidebar Navigation -->
         <!-- LEFT SIDEBAR -->
         <div class="col-md-3 col-lg-2 border-end bg-white p-0">
             <div class="list-group list-group-flush">
-
-                <div class="p-3 fw-bold text-uppercase small text-muted">
-                    Personal
-                </div>
-
-                <a href="#" class="list-group-item list-group-item-action active" data-bs-toggle="tab" data-bs-target="#personal_tab">
-                    Profile
-                </a>
-                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#address_tab">
-                    Addresses
-                </a>
-                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#emergency_tab">
-                    Emergency contacts
-                </a>
-
-                <div class="p-3 fw-bold text-uppercase small text-muted">
-                    Workspace
-                </div>
-
-                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#services_tab">
-                    Services
-                </a>
-                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#locations_tab">
-                    Locations
-                </a>
-                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#settings_tab">
-                    Settings
-                </a>
-
-                <div class="p-3 fw-bold text-uppercase small text-muted">
-                    Pay
-                </div>
-
-                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#wages_tab">
-                    Wages and timesheets
-                </a>
-                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#commission_tab">
-                    Commissions
-                </a>
-                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#payrun_tab">
-                    Pay runs
-                </a>
+                @include('store.team-members.team_sidebar', [
+                    'action' => 'create',                   
+                ])
+                
 
             </div>
         </div>
- <div class="col-md-9 col-lg-10 p-4">
-
+    <div class="col-md-9 col-lg-10 p-4">
+             @include('store.layouts.error')
             <div class="tab-content">
 
                 <!-- Personal Tab -->
@@ -113,27 +67,57 @@
             </div>
 
         </div>
-        <!-- Right Content Area -->
-        <div class="col-md-9" style="display: none">
-            <div class="tab-content" id="v-pills-tabContent">
-                <!-- Personal Tab -->
-                <div class="tab-pane fade show active" id="personal" role="tabpanel" aria-labelledby="v-pills-personal-tab">
-                    @include('store.team-members.partials.personal-tab')
-                </div>
+       
+    </div>
 
-                <!-- Workspace Tab -->
-                <div class="tab-pane fade" id="workspace" role="tabpanel" aria-labelledby="v-pills-workspace-tab">
-                    @include('store.team-members.partials.workspace-tab')
-                </div>
 
-                <!-- Pay Tab -->
-                <div class="tab-pane fade" id="pay" role="tabpanel" aria-labelledby="v-pills-pay-tab">
-                    @include('store.team-members.partials.pay-tab')
-                </div>
+<!-- Add Address Modal -->
+<div class="modal fade" id="addAddressModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+            <form action="{{ isset($teamMember) ? route('store.team-members.addresses.store', $teamMember) : '#' }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="address_name" class="form-label">Address name</label>
+                        <input type="text" class="form-control" id="address_name" name="address_name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="3"></textarea>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" class="form-control" id="city" name="city">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="state" class="form-label">State</label>
+                            <input type="text" class="form-control" id="state" name="state">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="postal_code" class="form-label">Postal Code</label>
+                            <input type="text" class="form-control" id="postal_code" name="postal_code">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="country" class="form-label">Country</label>
+                            <input type="text" class="form-control" id="country" name="country" value="India">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
         </div>
     </div>
-</form>
+</div>
+
 @endsection
 
 @push('styles')

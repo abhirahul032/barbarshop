@@ -14,6 +14,7 @@ class TeamMember extends Model
         'first_name',
         'last_name',
         'email',
+        'password',
         'phone_number',
         'additional_phone_number',
         'birthday',
@@ -28,7 +29,10 @@ class TeamMember extends Model
         'calendar_color',
         'rating',
         'review_count',
-        'is_active'
+        'is_active',
+        'profile_picture',
+        'permission_level',
+        'allow_bookings'
     ];
 
     protected $casts = [
@@ -38,7 +42,33 @@ class TeamMember extends Model
         'visible_to_clients' => 'boolean',
         'is_active' => 'boolean',
     ];
+    
+    // In TeamMember.php
+    public function scheduledShifts()
+    {
+        return $this->hasMany(ScheduledShift::class);
+    }
+     // Add this relationship
+    public function payRun()
+    {
+        return $this->hasOne(PayRun::class);
+    }
 
+    public function payRunHistory()
+    {
+        return $this->hasMany(PayRunHistory::class);
+    }
+
+    // Add this relationship
+    public function commission()
+    {
+        return $this->hasOne(Commission::class);
+    }
+     // Add this relationship
+    public function wage()
+    {
+        return $this->hasOne(Wage::class);
+    }
     public function store()
     {
         return $this->belongsTo(Store::class);

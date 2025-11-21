@@ -1,8 +1,9 @@
-<form id="teamMemberForm" action="{{ route('store.team-members.store') }}" method="POST"  enctype="multipart/form-data">
+<form id="teamMemberForm" action="{{ route('store.team-members.update', $teamMember) }}" method="POST"  enctype="multipart/form-data">
     @csrf
+    @method('PUT')
 <div style="margin-bottom: 20px;" class="d-flex justify-content-end">
     <a href="{{ route('store.team-members.index') }}" class="btn btn-outline-secondary me-2">Cancel</a>
-    <button type="submit" form="teamMemberForm" class="btn btn-primary">Save Team Member</button>
+    <button type="submit" form="teamMemberForm" class="btn btn-primary">Update Team Member</button>
 </div>
 <div class="card section-card">
     <div class="section-header">

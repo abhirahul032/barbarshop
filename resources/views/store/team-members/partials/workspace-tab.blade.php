@@ -1,4 +1,15 @@
-<!-- Services Section -->
+<form id="teamMemberForm"
+      action="{{ isset($teamMember) ? route('store.team-members.update', $teamMember) : '' }}"
+      method="POST">
+     
+    @csrf
+    @if(isset($teamMember))
+        @method('PUT')
+    @endif
+<div style="margin-bottom: 20px;" class="d-flex justify-content-end">
+    <a href="{{ route('store.team-members.index') }}" class="btn btn-outline-secondary me-2">Cancel</a>
+    <button type="submit" form="teamMemberForm" class="btn btn-primary">Update Team Member</button>
+</div>
 <div class="card section-card">
     <div class="section-header">
         <h5 class="mb-0">Services</h5>
@@ -34,3 +45,4 @@
 </div>
 
 
+</form>

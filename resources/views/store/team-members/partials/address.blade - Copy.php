@@ -13,11 +13,11 @@
                         <h6 class="mb-1">{{ $address->address_name ?? 'Address' }}</h6>
                         <p class="mb-1 text-muted">{{ $address->full_address }}</p>
                     </div>
-                    <form action="{{ route('store.team-members.addresses.destroy', [$teamMember->id, $address->id]) }}" method="POST">
+                    <form action="{{ route('team-members.addresses.destroy', ['teamMember' => $teamMember, 'address' => $address]) }}" method="POST" class="d-inline">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')">
-                            <i class="fa fa-trash"></i>
+                            <i class="fas fa-trash"></i>
                         </button>
                     </form>
                 </div>
@@ -28,7 +28,7 @@
         @endif
         
         <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addAddressModal">
-            <i class="fa fa-plus me-2"></i>Add an address
+            <i class="fas fa-plus me-2"></i>Add an address
         </button>
     </div>
 </div>
