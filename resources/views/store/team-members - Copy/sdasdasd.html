@@ -1,0 +1,104 @@
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- LEFT SIDEBAR -->
+        <div class="col-md-3 col-lg-2 border-end bg-white p-0">
+            <div class="list-group list-group-flush">
+
+                <div class="p-3 fw-bold text-uppercase small text-muted">
+                    Personal
+                </div>
+
+                <a href="#" class="list-group-item list-group-item-action active" data-bs-toggle="tab" data-bs-target="#personal_tab">
+                    Profile
+                </a>
+                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#address_tab">
+                    Addresses
+                </a>
+                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#emergency_tab">
+                    Emergency contacts
+                </a>
+
+                <div class="p-3 fw-bold text-uppercase small text-muted">
+                    Workspace
+                </div>
+
+                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#services_tab">
+                    Services
+                </a>
+                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#locations_tab">
+                    Locations
+                </a>
+                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#settings_tab">
+                    Settings
+                </a>
+
+                <div class="p-3 fw-bold text-uppercase small text-muted">
+                    Pay
+                </div>
+
+                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#wages_tab">
+                    Wages and timesheets
+                </a>
+                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#commission_tab">
+                    Commissions
+                </a>
+                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="tab" data-bs-target="#payrun_tab">
+                    Pay runs
+                </a>
+
+            </div>
+        </div>
+
+        <!-- RIGHT CONTENT -->
+        <div class="col-md-9 col-lg-10 p-4">
+
+            <div class="tab-content">
+
+                <!-- Personal Tab -->
+                <div class="tab-pane fade show active" id="personal_tab">
+                    @include('personal-tab')
+                </div>
+
+                <!-- Address Tab -->
+                <div class="tab-pane fade" id="address_tab">
+                    <h4>Addresses</h4>
+                    <p>Add your address section here.</p>
+                </div>
+
+                <!-- Emergency Tab -->
+                <div class="tab-pane fade" id="emergency_tab">
+                    <h4>Emergency Contacts</h4>
+                </div>
+
+                <!-- Workspace Tabs -->
+                <div class="tab-pane fade" id="services_tab">
+                    @include('workspace-tab')
+                </div>
+
+                <div class="tab-pane fade" id="locations_tab">
+                    <h4>Locations</h4>
+                </div>
+
+                <div class="tab-pane fade" id="settings_tab">
+                    <h4>Settings</h4>
+                </div>
+
+                <!-- Pay Tabs -->
+                <div class="tab-pane fade" id="wages_tab">
+                    <h4>Wages and Timesheets</h4>
+                </div>
+
+                <div class="tab-pane fade" id="commission_tab">
+                    @include('pay-tab')
+                </div>
+
+                <div class="tab-pane fade" id="payrun_tab">
+                    <h4>Pay Runs</h4>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>

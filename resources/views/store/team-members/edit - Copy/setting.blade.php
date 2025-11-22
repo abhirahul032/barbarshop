@@ -69,11 +69,8 @@ $(document).ready(function() {
             _method: 'PUT'
         };
         
-        // Converted route
-        const url = url_front + `store/team-members/{{ $teamMember->id }}/update-settings`;
-        
         $.ajax({
-            url: url,
+            url: '{{ route("store.team-members.update-settings", $teamMember) }}',
             type: 'POST',
             data: formData,
             success: function(response) {

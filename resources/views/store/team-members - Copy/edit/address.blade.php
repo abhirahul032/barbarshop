@@ -120,10 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(this);
         formData.append('is_primary', document.getElementById('is_primary').checked ? 1 : 0);
         
-        // Converted route
-        const url = url_front + `store/team-members/{{ $teamMember->id }}/addresses`;
-        
-        fetch(url, {
+        fetch('{{ route("store.team-members.addresses.store", $teamMember) }}', {
             method: 'POST',
             body: formData,
             headers: {
@@ -213,8 +210,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function deleteAddress(addressId) {
-        // Converted route
-        const url = url_front + `store/team-members/{{ $teamMember->id }}/addresses/${addressId}`;
+        // Use the correct route with both parameters
+        const url = '{{ route("store.team-members.addresses.destroy", ["teamMember" => $teamMember->id, "address" => "ADDRESS_ID"]) }}'.replace('ADDRESS_ID', addressId);
         
         fetch(url, {
             method: 'DELETE',
@@ -249,68 +246,66 @@ document.addEventListener('DOMContentLoaded', function() {
             showAlert('error', 'An error occurred while deleting address: ' + error.message, 'addressesContainer');
         });
     }
-    
     // Add this to your JavaScript in address.blade.php
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('set-primary-address') || e.target.closest('.set-primary-address')) {
-            const button = e.target.classList.contains('set-primary-address') ? e.target : e.target.closest('.set-primary-address');
-            const addressId = button.dataset.addressId;
-            
-            setPrimaryAddress(addressId);
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('set-primary-address') || e.target.closest('.set-primary-address')) {
+        const button = e.target.classList.contains('set-primary-address') ? e.target : e.target.closest('.set-primary-address');
+        const addressId = button.dataset.addressId;
+        
+        setPrimaryAddress(addressId);
+    }
+});
+
+function setPrimaryAddress(addressId) {
+    // Use the correct route name
+    const url = '{{ route("store.team-members.addresses.set-primary", ["teamMember" => $teamMember->id, "address" => "ADDRESS_ID"]) }}'.replace('ADDRESS_ID', addressId);
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
         }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update UI to reflect the new primary address
+            updatePrimaryAddressUI(addressId);
+            showAlert('success', data.message, 'addressesContainer');
+        } else {
+            showAlert('error', data.message, 'addressesContainer');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('error', 'An error occurred while setting primary address: ' + error.message, 'addressesContainer');
     });
+}
 
-    function setPrimaryAddress(addressId) {
-        // Converted route
-        const url = url_front + `store/team-members/{{ $teamMember->id }}/addresses/${addressId}/set-primary`;
+function updatePrimaryAddressUI(newPrimaryAddressId) {
+    // Remove primary badges from all addresses
+    document.querySelectorAll('.address-item').forEach(item => {
+        const badge = item.querySelector('.badge');
+        const setPrimaryBtn = item.querySelector('.set-primary-address');
         
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update UI to reflect the new primary address
-                updatePrimaryAddressUI(addressId);
-                showAlert('success', data.message, 'addressesContainer');
-            } else {
-                showAlert('error', data.message, 'addressesContainer');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showAlert('error', 'An error occurred while setting primary address: ' + error.message, 'addressesContainer');
-        });
-    }
-
-    function updatePrimaryAddressUI(newPrimaryAddressId) {
-        // Remove primary badges from all addresses
-        document.querySelectorAll('.address-item').forEach(item => {
-            const badge = item.querySelector('.badge');
-            const setPrimaryBtn = item.querySelector('.set-primary-address');
-            
-            if (badge) badge.remove();
-            if (setPrimaryBtn) setPrimaryBtn.style.display = 'inline-block';
-        });
+        if (badge) badge.remove();
+        if (setPrimaryBtn) setPrimaryBtn.style.display = 'inline-block';
+    });
+    
+    // Add primary badge to the new primary address
+    const primaryAddress = document.querySelector(`.address-item[data-address-id="${newPrimaryAddressId}"]`);
+    if (primaryAddress) {
+        const setPrimaryBtn = primaryAddress.querySelector('.set-primary-address');
+        if (setPrimaryBtn) setPrimaryBtn.style.display = 'none';
         
-        // Add primary badge to the new primary address
-        const primaryAddress = document.querySelector(`.address-item[data-address-id="${newPrimaryAddressId}"]`);
-        if (primaryAddress) {
-            const setPrimaryBtn = primaryAddress.querySelector('.set-primary-address');
-            if (setPrimaryBtn) setPrimaryBtn.style.display = 'none';
-            
-            const badge = document.createElement('span');
-            badge.className = 'badge bg-primary';
-            badge.textContent = 'Primary';
-            primaryAddress.querySelector('.flex-grow-1').appendChild(badge);
-        }
+        const badge = document.createElement('span');
+        badge.className = 'badge bg-primary';
+        badge.textContent = 'Primary';
+        primaryAddress.querySelector('.flex-grow-1').appendChild(badge);
     }
-
+}
     function showAlert(type, message, containerId) {
         const container = document.getElementById(containerId);
         
