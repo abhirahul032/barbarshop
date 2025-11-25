@@ -11,7 +11,123 @@ use Carbon\Carbon;
 
 class ScheduledShiftController extends Controller
 {
+    
     public function index(Request $request)
+{
+    $storeId = auth()->guard('store')->user()->id;
+    
+    // Get the week from request or default to current week
+    $weekStart = $request->get('week_start') 
+        ? Carbon::parse($request->get('week_start'))
+        : Carbon::now()->startOfWeek();
+        
+    $weekEnd = $weekStart->copy()->endOfWeek();
+
+    // Debug: Check the date range
+    \Log::info("Fetching shifts for week: {$weekStart->format('Y-m-d')} to {$weekEnd->format('Y-m-d')}");
+
+    // Get all active team members
+    $teamMembers = TeamMember::where('store_id', $storeId)
+               ->where('is_active', true)
+               ->get();
+
+    // Create default shifts for team members who don't have shifts for working days
+    $this->createDefaultShiftsForTeamMembers($teamMembers, $weekStart);
+
+    // Now load team members with their shifts (including newly created ones)
+    $teamMembers = TeamMember::with(['scheduledShifts' => function($query) use ($weekStart, $weekEnd) {
+        $query->whereBetween('shift_date', [$weekStart, $weekEnd])
+              ->orderBy('shift_date')
+              ->orderBy('start_time');
+    }])->where('store_id', $storeId)
+       ->where('is_active', true)
+       ->get();
+
+    // Debug: Check what shifts are being loaded
+    foreach ($teamMembers as $member) {
+        \Log::info("Team Member {$member->id}: {$member->first_name} has " . $member->scheduledShifts->count() . " shifts");
+        foreach ($member->scheduledShifts as $shift) {
+            \Log::info("Shift: {$shift->shift_date} {$shift->start_time}-{$shift->end_time}");
+        }
+    }
+
+    // Generate all week days for display (Monday to Sunday)
+    $weekDays = [];
+    for ($i = 0; $i < 7; $i++) {
+        $weekDays[] = $weekStart->copy()->addDays($i);
+    }
+
+    return view('store.scheduled-shifts.index', compact('teamMembers', 'weekDays', 'weekStart', 'weekEnd'));
+}
+
+/**
+ * Create default shifts for team members who don't have shifts for working days
+ */
+private function createDefaultShiftsForTeamMembers($teamMembers, Carbon $weekStart): void
+{
+    $workingDays = $this->getWorkingDays($weekStart);
+    $defaultTimes = $this->getDefaultShiftTimes();
+
+    foreach ($teamMembers as $member) {
+        $this->createMissingShiftsForMember($member, $workingDays, $defaultTimes);
+    }
+}
+
+/**
+ * Get working days for the week (Monday to Friday)
+ */
+private function getWorkingDays(Carbon $weekStart): array
+{
+    $workingDays = [];
+    for ($i = 0; $i < 6; $i++) {
+        $workingDays[] = $weekStart->copy()->addDays($i);
+    }
+    return $workingDays;
+}
+
+/**
+ * Get default shift times
+ */
+private function getDefaultShiftTimes(): array
+{
+    return [
+        'start_time' => '09:00',
+        'end_time' => '19:00',
+        'shift_type' => 'regular',
+        'notes' => 'Auto-generated default shift'
+    ];
+}
+
+/**
+ * Create missing shifts for a specific team member
+ */
+private function createMissingShiftsForMember(TeamMember $member, array $workingDays, array $defaultTimes): void
+{
+    foreach ($workingDays as $day) {
+        $shiftDate = $day->format('Y-m-d');
+        
+        // Check if shift already exists for this day
+        $existingShift = ScheduledShift::where('team_member_id', $member->id)
+            ->where('shift_date', $shiftDate)
+            ->first();
+
+        // If no shift exists, create a default one
+        if (!$existingShift) {
+            ScheduledShift::create([
+                'team_member_id' => $member->id,
+                'shift_date' => $shiftDate,
+                'start_time' => $defaultTimes['start_time'],
+                'end_time' => $defaultTimes['end_time'],
+                'shift_type' => $defaultTimes['shift_type'],
+                'notes' => $defaultTimes['notes'],
+            ]);
+            
+            \Log::info("Created default shift for {$member->first_name} on {$shiftDate}");
+        }
+    }
+}
+    
+    public function index_old(Request $request)
     {
         $storeId = auth()->guard('store')->user()->id;
         

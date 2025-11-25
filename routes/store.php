@@ -7,6 +7,14 @@ use App\Http\Controllers\Store\ServiceController;
 use App\Http\Controllers\Store\PageController;
 use App\Http\Controllers\Store\TeamMemberController;
 use App\Http\Controllers\Store\ScheduledShiftController;
+use App\Http\Controllers\Store\AppointmentController; // Add this line
+use App\Http\Controllers\Store\ApiController; // Add this line
+use App\Http\Controllers\Store\MembershipController; // Add this line
+use App\Http\Controllers\Store\SupplierController; // Add this line
+use App\Http\Controllers\Store\ProductController; // Add this line
+
+
+
 Route::prefix('store')
     ->name('store.')
     ->middleware('web')
@@ -17,7 +25,7 @@ Route::prefix('store')
         
         
         
-        
+        Route::get('appointments/available-slots', [AppointmentController::class, 'getAvailableSlots'])->name('appointments.available-slots');
         
         // Store Index Route
         Route::get('/', function () {
@@ -33,18 +41,75 @@ Route::prefix('store')
             })->name('dashboard');
             
             
+            // Add this to your store routes after the other catalogue routes
+            Route::prefix('suppliers')->name('suppliers.')->group(function () {
+                Route::get('/', [SupplierController::class, 'index'])->name('index');
+                Route::get('/create', [SupplierController::class, 'create'])->name('create');
+                Route::post('/', [SupplierController::class, 'store'])->name('store');
+                Route::get('/{supplier}', [SupplierController::class, 'show'])->name('show');
+                Route::get('/{supplier}/edit', [SupplierController::class, 'edit'])->name('edit');
+                Route::put('/{supplier}', [SupplierController::class, 'update'])->name('update');
+                Route::delete('/{supplier}', [SupplierController::class, 'destroy'])->name('destroy');
+            });
+            // Also update the catalogue suppliers route to point to the new controller
+           
+            
+            // Membership Routes
+            Route::prefix('memberships')->name('memberships.')->group(function () {
+                Route::get('/', [MembershipController::class, 'index'])->name('index');
+                Route::get('/create', [MembershipController::class, 'create'])->name('create');
+                Route::post('/', [MembershipController::class, 'store'])->name('store');
+                Route::get('/{membership}', [MembershipController::class, 'show'])->name('show');
+                Route::get('/{membership}/edit', [MembershipController::class, 'edit'])->name('edit');
+                Route::put('/{membership}', [MembershipController::class, 'update'])->name('update');
+                Route::delete('/{membership}', [MembershipController::class, 'destroy'])->name('destroy');
+                Route::put('/{membership}/toggle-status', [MembershipController::class, 'toggleStatus'])->name('toggle-status');
+                Route::get('/services/by-category', [MembershipController::class, 'getServicesByCategory'])->name('services.by-category');
+            });
+            // Tax Rate Routes
+            Route::prefix('tax-rates')->name('tax-rates.')->group(function () {
+                Route::get('/', [TaxRateController::class, 'index'])->name('index');
+                Route::post('/', [TaxRateController::class, 'store'])->name('store');
+                Route::put('/{taxRate}', [TaxRateController::class, 'update'])->name('update');
+                Route::delete('/{taxRate}', [TaxRateController::class, 'destroy'])->name('destroy');
+            });
+
+            
+            // ============ APPOINTMENT ROUTES ============
+            Route::prefix('appointments')->name('appointments.')->group(function () {
+                Route::get('/', [AppointmentController::class, 'index'])->name('index');
+                Route::get('/create', [AppointmentController::class, 'create'])->name('create');
+                Route::post('/', [AppointmentController::class, 'store'])->name('store');
+                Route::get('/{appointment}', [AppointmentController::class, 'show'])->name('show');
+                Route::get('/{appointment}/edit', [AppointmentController::class, 'edit'])->name('edit');
+                Route::put('/{appointment}', [AppointmentController::class, 'update'])->name('update');
+                Route::delete('/{appointment}', [AppointmentController::class, 'destroy'])->name('destroy');
+                
+                // Additional appointment routes
+                Route::get('/calendar/view', [AppointmentController::class, 'calendar'])->name('calendar');
+                Route::get('/available-slots', [AppointmentController::class, 'getAvailableSlots'])->name('available-slots');
+            });
+
+            // ============ API ROUTES FOR CALENDAR ============
+            Route::prefix('api')->name('api.')->group(function () {
+                Route::get('/calendar-events', [ApiController::class, 'calendarEvents'])->name('calendar-events');
+                Route::get('/team-member/{teamMember}/schedule', [ApiController::class, 'teamMemberSchedule'])->name('team-member-schedule');
+            });
+            
+            
+            
             // Scheduled Shifts Routes
             // In your scheduled-shifts route group, add these routes:
-Route::prefix('scheduled-shifts')->name('scheduled-shifts.')->group(function () {
-    Route::get('/', [ScheduledShiftController::class, 'index'])->name('index');
-    Route::post('/', [ScheduledShiftController::class, 'store'])->name('store');
-    Route::post('/bulk', [ScheduledShiftController::class, 'bulkStore'])->name('bulk.store');
-    
-    // Add these missing routes:
-    Route::get('/{scheduledShift}/edit', [ScheduledShiftController::class, 'edit'])->name('edit');
-    Route::put('/{scheduledShift}', [ScheduledShiftController::class, 'update'])->name('update');
-    Route::delete('/{scheduledShift}', [ScheduledShiftController::class, 'destroy'])->name('destroy');
-});
+            Route::prefix('scheduled-shifts')->name('scheduled-shifts.')->group(function () {
+                Route::get('/', [ScheduledShiftController::class, 'index'])->name('index');
+                Route::post('/', [ScheduledShiftController::class, 'store'])->name('store');
+                Route::post('/bulk', [ScheduledShiftController::class, 'bulkStore'])->name('bulk.store');
+
+                // Add these missing routes:
+                Route::get('/{scheduledShift}/edit', [ScheduledShiftController::class, 'edit'])->name('edit');
+                Route::put('/{scheduledShift}', [ScheduledShiftController::class, 'update'])->name('update');
+                Route::delete('/{scheduledShift}', [ScheduledShiftController::class, 'destroy'])->name('destroy');
+            });
             
             // Team Members Routes (Complete CRUD)
             Route::prefix('team-members')->name('team-members.')->group(function () {
@@ -83,9 +148,8 @@ Route::prefix('scheduled-shifts')->name('scheduled-shifts.')->group(function () 
             
             Route::resource('team-members', TeamMemberController::class);
             Route::resource('employees', EmployeeController::class);    
-            Route::resource('services', ServiceController::class);
-            
-           
+            Route::resource('services', ServiceController::class);            
+            Route::resource('products', ProductController::class);
            
             
             Route::get('page/calender', [PageController::class, 'calender'])->name('page.calender');

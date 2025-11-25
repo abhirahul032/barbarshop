@@ -86,7 +86,7 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">-->
 
-<script src="{{ asset('assets/js/plugins.js') }}"></script>
+<!--<script src="{{ asset('assets/js/plugins.js') }}"></script>-->
 
 @stack('scripts')
 @yield('js')

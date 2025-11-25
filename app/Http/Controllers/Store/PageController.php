@@ -61,7 +61,7 @@ class PageController extends Controller
         return view('store.catalogue.services');
     }
     public function catalogueMemberships(Request $request){
-        return view('store.catalogue.memberships');
+       return redirect()->route('store.memberships.index'); // return view('store.catalogue.memberships');
     }
     public function catalogueProducts(Request $request){
         return view('store.catalogue.products');
