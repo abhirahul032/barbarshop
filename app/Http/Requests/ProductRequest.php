@@ -21,6 +21,8 @@ class ProductRequest extends FormRequest
             'barcode' => 'nullable|string|max:255',
             'brand_id' => 'nullable|exists:product_brands,id',
             'category_id' => 'nullable|exists:product_categories,id',
+            'new_brand_name' => 'nullable|string|max:255',
+            'new_category_name' => 'nullable|string|max:255',
             'supplier_id' => 'nullable|exists:suppliers,id',
             'measure_unit' => 'nullable|string|max:50',
             'measure_amount' => 'nullable|numeric',

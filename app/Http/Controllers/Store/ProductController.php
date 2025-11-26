@@ -21,20 +21,77 @@ class ProductController extends Controller
         $store = Auth::guard('store')->user();
         $query = Product::where('store_id', $store->id);
 
+        // Search functionality
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('sku', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('barcode', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('short_description', 'LIKE', "%{$searchTerm}%")
+                  ->orWhereHas('brand', function($q) use ($searchTerm) {
+                      $q->where('name', 'LIKE', "%{$searchTerm}%");
+                  })
+                  ->orWhereHas('category', function($q) use ($searchTerm) {
+                      $q->where('name', 'LIKE', "%{$searchTerm}%");
+                  })
+                  ->orWhereHas('supplier', function($q) use ($searchTerm) {
+                      $q->where('name', 'LIKE', "%{$searchTerm}%");
+                  });
+            });
+        }
+
+        // Filter by category
+        if ($request->has('category_id') && !empty($request->category_id)) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        // Filter by brand
+        if ($request->has('brand_id') && !empty($request->brand_id)) {
+            $query->where('brand_id', $request->brand_id);
+        }
+
+        // Filter by stock status
+        if ($request->has('stock_status') && !empty($request->stock_status)) {
+            switch ($request->stock_status) {
+                case 'in_stock':
+                    $query->where('stock_quantity', '>', 0);
+                    break;
+                case 'low_stock':
+                    $query->where('track_stock', true)
+                          ->whereRaw('stock_quantity <= low_stock_level');
+                    break;
+                case 'out_of_stock':
+                    $query->where(function($q) {
+                        $q->where('stock_quantity', '<=', 0)
+                          ->orWhere(function($q2) {
+                              $q2->where('track_stock', true)
+                                 ->where('stock_quantity', '<=', 0);
+                          });
+                    });
+                    break;
+            }
+        }
+
         $products = $query->with(['brand','category','supplier','images'])
                           ->orderBy('created_at','desc')
-                          ->paginate(15);
+                          ->paginate(15)
+                          ->appends($request->except('page'));
 
-        return view('store.products.index', compact('products'));
+        // Get filter data
+        $brands = ProductBrand::where('store_id', $store->id)->get();
+        $categories = ProductCategory::where('store_id', $store->id)->get();
+
+        return view('store.products.index', compact('products', 'brands', 'categories'));
     }
 
-    public function create(Request $request)
+     public function create(Request $request)
     {
         $store = Auth::guard('store')->user();
         $brands = ProductBrand::where('store_id', $store->id)->get();
         $categories = ProductCategory::where('store_id', $store->id)->get();
         $suppliers = Supplier::where('store_id', $store->id)->get();
-        $storeId=$store->id;
+        $storeId = $store->id;
 
         return view('store.products.create', compact('brands','categories','suppliers','storeId'));
     }
@@ -48,6 +105,24 @@ class ProductController extends Controller
 
             // Set store_id from authenticated store
             $data['store_id'] = $store->id;
+
+            // Handle new brand creation
+            if ($request->has('new_brand_name') && !empty($request->new_brand_name)) {
+                $brand = ProductBrand::create([
+                    'store_id' => $store->id,
+                    'name' => $request->new_brand_name
+                ]);
+                $data['brand_id'] = $brand->id;
+            }
+
+            // Handle new category creation
+            if ($request->has('new_category_name') && !empty($request->new_category_name)) {
+                $category = ProductCategory::create([
+                    'store_id' => $store->id,
+                    'name' => $request->new_category_name
+                ]);
+                $data['category_id'] = $category->id;
+            }
 
             // Auto-generate SKU if not provided
             if (empty($data['sku'])) {
@@ -78,6 +153,52 @@ class ProductController extends Controller
         });
     }
 
+     // Add these new methods for AJAX brand and category creation
+    public function storeBrand(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255'
+        ]);
+
+        $store = Auth::guard('store')->user();
+        
+        $brand = ProductBrand::create([
+            'store_id' => $store->id,
+            'name' => $request->name
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'brand' => [
+                'id' => $brand->id,
+                'name' => $brand->name
+            ]
+        ]);
+    }
+
+    public function storeCategory(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255'
+        ]);
+
+        $store = Auth::guard('store')->user();
+        
+        $category = ProductCategory::create([
+            'store_id' => $store->id,
+            'name' => $request->name
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'category' => [
+                'id' => $category->id,
+                'name' => $category->name
+            ]
+        ]);
+    }
+
+    
     public function show(Product $product)
     {
         $this->authorizeAccess($product);
@@ -92,8 +213,9 @@ class ProductController extends Controller
         $brands = ProductBrand::where('store_id', $store->id)->get();
         $categories = ProductCategory::where('store_id', $store->id)->get();
         $suppliers = Supplier::where('store_id', $store->id)->get();
+        $storeId=$store->id;
 
-        return view('store.products.edit', compact('product','brands','categories','suppliers'));
+        return view('store.products.edit', compact('product','brands','categories','suppliers','storeId'));
     }
 
     public function update(ProductRequest $request, Product $product)

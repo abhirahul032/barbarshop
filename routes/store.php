@@ -12,7 +12,7 @@ use App\Http\Controllers\Store\ApiController; // Add this line
 use App\Http\Controllers\Store\MembershipController; // Add this line
 use App\Http\Controllers\Store\SupplierController; // Add this line
 use App\Http\Controllers\Store\ProductController; // Add this line
-
+use App\Http\Controllers\Store\ClientController; // Add this line
 
 
 Route::prefix('store')
@@ -40,6 +40,22 @@ Route::prefix('store')
                 return view('store.dashboard');
             })->name('dashboard');
             
+               // ============ CLIENT ROUTES ============
+            Route::prefix('clients')->name('clients.')->group(function () {
+                Route::get('/', [ClientController::class, 'index'])->name('index');
+                Route::get('/create', [ClientController::class, 'create'])->name('create');
+                Route::post('/', [ClientController::class, 'store'])->name('store');
+                Route::get('/{client}', [ClientController::class, 'show'])->name('show');
+                Route::get('/{client}/edit', [ClientController::class, 'edit'])->name('edit');
+                Route::put('/{client}', [ClientController::class, 'update'])->name('update');
+                Route::delete('/{client}', [ClientController::class, 'destroy'])->name('destroy');
+                
+                // Additional routes for addresses and emergency contacts
+                Route::post('/{client}/addresses', [ClientController::class, 'storeAddress'])->name('addresses.store');
+                Route::post('/{client}/emergency-contacts', [ClientController::class, 'storeEmergencyContact'])->name('emergency-contacts.store');
+                Route::delete('/{client}/addresses/{address}', [ClientController::class, 'destroyAddress'])->name('addresses.destroy');
+                Route::delete('/{client}/emergency-contacts/{emergencyContact}', [ClientController::class, 'destroyEmergencyContact'])->name('emergency-contacts.destroy');
+            });
             
             // Add this to your store routes after the other catalogue routes
             Route::prefix('suppliers')->name('suppliers.')->group(function () {
@@ -148,9 +164,28 @@ Route::prefix('store')
             
             Route::resource('team-members', TeamMemberController::class);
             Route::resource('employees', EmployeeController::class);    
-            Route::resource('services', ServiceController::class);            
-            Route::resource('products', ProductController::class);
+            Route::resource('services', ServiceController::class);   
+            
+//            Route::resource('products', ProductController::class);
+//            Route::post('/products/brand', [ProductController::class, 'storeBrand'])->name('store.products.brand.store');
+//            Route::post('/products/category', [ProductController::class, 'storeCategory'])->name('store.products.category.store');
            
+             // PRODUCT ROUTES - FIXED ORDER
+            Route::prefix('products')->name('products.')->group(function () {
+                // AJAX routes for brand and category creation - MUST COME BEFORE RESOURCE
+                Route::post('/brand', [ProductController::class, 'storeBrand'])->name('brand.store');
+                Route::post('/category', [ProductController::class, 'storeCategory'])->name('category.store');
+                
+                // Resource routes
+                Route::get('/', [ProductController::class, 'index'])->name('index');
+                Route::get('/create', [ProductController::class, 'create'])->name('create');
+                Route::post('/', [ProductController::class, 'store'])->name('store');
+                Route::get('/{product}', [ProductController::class, 'show'])->name('show');
+                Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('edit');
+                Route::put('/{product}', [ProductController::class, 'update'])->name('update');
+                Route::delete('/{product}', [ProductController::class, 'destroy'])->name('destroy');
+            });
+            
             
             Route::get('page/calender', [PageController::class, 'calender'])->name('page.calender');
          // --- Sales Menu ---
