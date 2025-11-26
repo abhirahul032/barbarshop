@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\ClientMembership;
 use App\Models\Membership;
+use App\Models\MembershipRedemption;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -58,7 +59,9 @@ class ClientMembershipController extends Controller
             'status' => 'active',
         ]);
 
-        return redirect()->route('store.clients.memberships.index', $client)
+      //  return redirect()->route('store.clients.memberships.index', $client)
+       //     ->with('success', 'Membership added successfully.');
+        return redirect()->route('store.clients.show', $client)
             ->with('success', 'Membership added successfully.');
     }
 

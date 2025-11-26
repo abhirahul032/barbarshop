@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\ClientAddress;
 use App\Models\ClientEmergencyContact;
-use App\Models\Membership;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -15,72 +14,16 @@ use Illuminate\Support\Facades\Auth;
 
 class ClientController extends Controller
 {
-        public function index(Request $request): View
-        {
-            $store = Auth::guard('store')->user();
+    public function index(): View
+    {
+        $store = Auth::guard('store')->user();
+        $clients = Client::with(['addresses', 'emergencyContacts'])
+            ->where('store_id', $store->id)
+            ->latest()
+            ->paginate(10);
 
-            $query = Client::with(['addresses', 'emergencyContacts', 'memberships'])
-                ->where('store_id', $store->id);
-
-            // Search functionality
-            if ($request->has('search') && $request->search) {
-                $search = $request->search;
-                $query->where(function($q) use ($search) {
-                    $q->where('first_name', 'like', "%{$search}%")
-                      ->orWhere('last_name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%")
-                      ->orWhere('phone', 'like', "%{$search}%");
-                });
-            }
-
-            // Filter functionality
-            if ($request->has('filter')) {
-                switch ($request->filter) {
-                    case 'with_memberships':
-                        $query->whereHas('memberships', function($q) {
-                            $q->where('status', 'active');
-                        });
-                        break;
-                    case 'active':
-                        // You can add more specific active client criteria here
-                        $query->whereHas('memberships', function($q) {
-                            $q->where('status', 'active')
-                              ->where('end_date', '>=', now());
-                        });
-                        break;
-                    // Add more filter cases as needed
-                }
-            }
-
-            $clients = $query->latest()->paginate(10);
-
-            // Calculate statistics
-            $totalClients = $clients->total();
-
-            // Active memberships count
-            $activeMembershipsCount = Client::where('store_id', $store->id)
-                ->whereHas('memberships', function($q) {
-                    $q->where('status', 'active')
-                      ->where('end_date', '>=', now());
-                })->count();
-
-            // New clients this month
-            $newThisMonth = Client::where('store_id', $store->id)
-                ->whereMonth('created_at', now()->month)
-                ->whereYear('created_at', now()->year)
-                ->count();
-
-            // Average appointments (placeholder - you'll need to implement this based on your appointments logic)
-            $avgAppointments = '--'; // You can implement this later
-
-            return view('store.clients.index', compact(
-                'clients', 
-                'totalClients', 
-                'activeMembershipsCount', 
-                'newThisMonth', 
-                'avgAppointments'
-            ));
-        }
+        return view('store.clients.index', compact('clients'));
+    }
 
     public function create(): View
     {
@@ -131,25 +74,8 @@ class ClientController extends Controller
     public function show(Client $client): View
     {
         $this->authorizeAccess($client);
-        $store = Auth::guard('store')->user();
-        
-        $client->load([
-            'addresses', 
-            'emergencyContacts', 
-            'memberships.membership.services',
-            'memberships.redemptions.service',
-            'referredBy'
-        ]);
-        
-        // Load available memberships for this store
-        $memberships = Membership::where('store_id', $store->id)
-            ->where('is_active', true)
-            ->with('services')
-            ->get();
-        
-       
-
-        return view('store.clients.show', compact('client', 'memberships'));
+        $client->load(['addresses', 'emergencyContacts', 'memberships', 'referredBy']);
+        return view('store.clients.show', compact('client'));
     }
 
     public function edit(Client $client): View

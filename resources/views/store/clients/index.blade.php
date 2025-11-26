@@ -26,7 +26,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                 Total Clients</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $clients->total() }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalClients }}</div>
                         </div>
                         <div class="col-auto">
                             <i class="fa fa-users fa-2x text-gray-300"></i>
@@ -42,7 +42,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                 Active Memberships</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">--</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $activeMembershipsCount }}</div>
                         </div>
                         <div class="col-auto">
                             <i class="fa fa-id-card fa-2x text-gray-300"></i>
@@ -58,7 +58,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                 New This Month</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">--</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $newThisMonth }}</div>
                         </div>
                         <div class="col-auto">
                             <i class="fa fa-user-plus fa-2x text-gray-300"></i>
@@ -74,7 +74,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 Avg. Appointments</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">--</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $avgAppointments }}</div>
                         </div>
                         <div class="col-auto">
                             <i class="fa fa-calendar fa-2x text-gray-300"></i>
@@ -96,24 +96,51 @@
             <!-- Search and Filters -->
             <div class="row mb-4">
                 <div class="col-md-6">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Search clients...">
-                        <button class="btn btn-outline-primary" type="button">
-                            <i class="fa fa-search"></i>
-                        </button>
-                    </div>
+                    <form action="{{ route('store.clients.index') }}" method="GET">
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="search" placeholder="Search clients..." 
+                                   value="{{ request('search') }}">
+                            <button class="btn btn-outline-primary" type="submit">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
                 </div>
                 <div class="col-md-6 text-end">
                     <div class="btn-group">
                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fa fa-filter me-2"></i>Filter
+                            @if(request('filter'))
+                            <span class="badge bg-primary ms-1">Active</span>
+                            @endif
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">All Clients</a></li>
-                            <li><a class="dropdown-item" href="#">With Memberships</a></li>
-                            <li><a class="dropdown-item" href="#">Active</a></li>
+                            <li>
+                                <a class="dropdown-item {{ !request('filter') ? 'active' : '' }}" 
+                                   href="{{ route('store.clients.index', array_merge(request()->except('filter'), ['filter' => ''])) }}">
+                                    All Clients
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {{ request('filter') == 'with_memberships' ? 'active' : '' }}" 
+                                   href="{{ route('store.clients.index', array_merge(request()->except('filter'), ['filter' => 'with_memberships'])) }}">
+                                    With Memberships
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item {{ request('filter') == 'active' ? 'active' : '' }}" 
+                                   href="{{ route('store.clients.index', array_merge(request()->except('filter'), ['filter' => 'active'])) }}">
+                                    Active
+                                </a>
+                            </li>
                         </ul>
                     </div>
+                    
+                    @if(request('search') || request('filter'))
+                    <a href="{{ route('store.clients.index') }}" class="btn btn-outline-danger ms-2">
+                        <i class="fa fa-times me-2"></i>Clear
+                    </a>
+                    @endif
                 </div>
             </div>
 
@@ -134,7 +161,9 @@
                                         <small class="text-muted">ID: #{{ str_pad($client->id, 6, '0', STR_PAD_LEFT) }}</small>
                                     </div>
                                 </div>
-                                <span class="badge bg-success">Active</span>
+                                <span class="badge bg-{{ $client->activeMemberships->count() > 0 ? 'success' : 'secondary' }}">
+                                    {{ $client->activeMemberships->count() > 0 ? 'Active' : 'Inactive' }}
+                                </span>
                             </div>
                             
                             <div class="client-info mb-3">
@@ -152,7 +181,15 @@
                                 <div class="mb-2">
                                     <small class="text-muted">
                                         <i class="fa fa-birthday-cake me-1"></i> 
-                                        {{ $client->birthday->format('M d, Y') }}
+                                        {{ \Carbon\Carbon::parse($client->birthday)->format('M d, Y') }}
+                                    </small>
+                                </div>
+                                @endif
+                                @if($client->activeMemberships->count() > 0)
+                                <div class="mb-2">
+                                    <small class="text-success">
+                                        <i class="fa fa-id-card me-1"></i> 
+                                        {{ $client->activeMemberships->count() }} active membership(s)
                                     </small>
                                 </div>
                                 @endif
@@ -195,7 +232,13 @@
                     <div class="text-center py-5">
                         <i class="fa fa-users fa-3x text-muted mb-3"></i>
                         <h4 class="text-muted">No Clients Found</h4>
-                        <p class="text-muted">Get started by adding your first client.</p>
+                        <p class="text-muted">
+                            @if(request('search') || request('filter'))
+                                No clients match your search criteria. Try adjusting your filters.
+                            @else
+                                Get started by adding your first client.
+                            @endif
+                        </p>
                         <a href="{{ route('store.clients.create') }}" class="btn btn-primary">
                             <i class="fa fa-plus me-2"></i>Add New Client
                         </a>
@@ -207,7 +250,7 @@
             <!-- Pagination -->
             @if($clients->hasPages())
             <div class="d-flex justify-content-center mt-4">
-                {{ $clients->links() }}
+                {{ $clients->appends(request()->query())->links() }}
             </div>
             @endif
         </div>
@@ -241,6 +284,26 @@
     border-radius: 0.375rem;
     margin-left: 0.25rem;
 }
+
+.dropdown-item.active {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 </style>
 @endpush
 
@@ -251,7 +314,47 @@ document.addEventListener('DOMContentLoaded', function() {
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
-    })
+    });
+
+    // Auto-submit search on enter
+    const searchInput = document.querySelector('input[name="search"]');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                this.form.submit();
+            }
+        });
+    }
+
+    // Show loading state on filter clicks
+    const filterLinks = document.querySelectorAll('.dropdown-item');
+    filterLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            // Add loading state
+            const dropdownToggle = document.querySelector('.dropdown-toggle');
+            if (dropdownToggle) {
+                const originalText = dropdownToggle.innerHTML;
+                dropdownToggle.innerHTML = '<div class="loading-spinner me-2"></div> Loading...';
+                
+                // Restore original text after 2 seconds (in case the page doesn't reload)
+                setTimeout(() => {
+                    dropdownToggle.innerHTML = originalText;
+                }, 2000);
+            }
+        });
+    });
+
+    // Show loading state on search submit
+    const searchForm = document.querySelector('form');
+    if (searchForm) {
+        searchForm.addEventListener('submit', function() {
+            const searchButton = this.querySelector('button[type="submit"]');
+            if (searchButton) {
+                searchButton.innerHTML = '<div class="loading-spinner"></div>';
+                searchButton.disabled = true;
+            }
+        });
+    }
 });
 </script>
 @endpush
