@@ -13,6 +13,7 @@ use App\Http\Controllers\Store\MembershipController; // Add this line
 use App\Http\Controllers\Store\SupplierController; // Add this line
 use App\Http\Controllers\Store\ProductController; // Add this line
 use App\Http\Controllers\Store\ClientController; // Add this line
+use App\Http\Controllers\Store\ClientMembershipController;
 
 
 Route::prefix('store')
@@ -55,6 +56,14 @@ Route::prefix('store')
                 Route::post('/{client}/emergency-contacts', [ClientController::class, 'storeEmergencyContact'])->name('emergency-contacts.store');
                 Route::delete('/{client}/addresses/{address}', [ClientController::class, 'destroyAddress'])->name('addresses.destroy');
                 Route::delete('/{client}/emergency-contacts/{emergencyContact}', [ClientController::class, 'destroyEmergencyContact'])->name('emergency-contacts.destroy');
+            });
+            
+            Route::prefix('clients/{client}/memberships')->name('clients.memberships.')->group(function () {
+                Route::get('/', [ClientMembershipController::class, 'index'])->name('index');
+                Route::post('/', [ClientMembershipController::class, 'store'])->name('store');
+                Route::put('/{clientMembership}', [ClientMembershipController::class, 'update'])->name('update');
+                Route::delete('/{clientMembership}', [ClientMembershipController::class, 'destroy'])->name('destroy');
+                Route::post('/{clientMembership}/redeem', [ClientMembershipController::class, 'redeem'])->name('redeem');
             });
             
             // Add this to your store routes after the other catalogue routes

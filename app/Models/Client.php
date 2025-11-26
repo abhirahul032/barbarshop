@@ -54,6 +54,10 @@ class Client extends Model
     {
         return $this->hasMany(ClientMembership::class);
     }
+    public function activeMemberships(): HasMany
+    {
+        return $this->hasMany(ClientMembership::class)->active();
+    }
 
     public function addresses(): HasMany
     {
@@ -68,6 +72,10 @@ class Client extends Model
     public function referredBy(): BelongsTo
     {
         return $this->belongsTo(Client::class, 'referred_by_client_id');
+    }
+    public function referredClients(): HasMany
+    {
+        return $this->hasMany(Client::class, 'referred_by_client_id');
     }
 
     // Helper method to get full name

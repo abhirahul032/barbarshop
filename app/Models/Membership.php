@@ -53,4 +53,19 @@ class Membership extends Model
     {
         return $this->hasMany(ClientMembership::class);
     }
+    
+      // Helper methods
+    public function getValidityDescriptionAttribute(): string
+    {
+        return "{$this->validity_duration} {$this->validity_period}";
+    }
+
+    public function getSessionDescriptionAttribute(): string
+    {
+        if ($this->session_type === 'unlimited') {
+            return 'Unlimited sessions';
+        }
+        return "{$this->session_count} sessions";
+    }
+    
 }

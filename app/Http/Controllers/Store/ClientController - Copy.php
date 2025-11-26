@@ -1,24 +1,22 @@
 <?php
-// app/Http/Controllers/Store/ClientController.php
+// app/Http/Controllers/ClientController.php
 
 namespace App\Http\Controllers\Store;
 
 use App\Http\Controllers\Controller;
+
 use App\Models\Client;
 use App\Models\ClientAddress;
 use App\Models\ClientEmergencyContact;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Auth;
 
 class ClientController extends Controller
 {
     public function index(): View
     {
-        $store = Auth::guard('store')->user();
         $clients = Client::with(['addresses', 'emergencyContacts'])
-            ->where('store_id', $store->id)
             ->latest()
             ->paginate(10);
 
@@ -27,19 +25,16 @@ class ClientController extends Controller
 
     public function create(): View
     {
-        $store = Auth::guard('store')->user();
-        $existingClients = Client::where('store_id', $store->id)->get();
+        $existingClients = Client::all();
         return view('store.clients.create', compact('existingClients'));
     }
 
     public function store(Request $request): RedirectResponse
     {
-        $store = Auth::guard('store')->user();
-
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:clients,email,NULL,id,store_id,' . $store->id,
+            'email' => 'required|email|unique:clients',
             'phone' => 'nullable|string|max:20',
             'birthday' => 'nullable|date',
             'birth_year' => 'nullable|integer|min:1900|max:' . date('Y'),
@@ -63,7 +58,7 @@ class ClientController extends Controller
             'whatsapp_marketing' => 'boolean',
         ]);
 
-        $validated['store_id'] = $store->id;
+        $validated['store_id'] = 1; // Default store ID, adjust as needed
 
         $client = Client::create($validated);
 
@@ -73,31 +68,23 @@ class ClientController extends Controller
 
     public function show(Client $client): View
     {
-        $this->authorizeAccess($client);
         $client->load(['addresses', 'emergencyContacts', 'memberships', 'referredBy']);
         return view('store.clients.show', compact('client'));
     }
 
     public function edit(Client $client): View
     {
-        $this->authorizeAccess($client);
-        $store = Auth::guard('store')->user();
-        $existingClients = Client::where('store_id', $store->id)
-            ->where('id', '!=', $client->id)
-            ->get();
+        $existingClients = Client::where('id', '!=', $client->id)->get();
         $client->load(['addresses', 'emergencyContacts']);
         return view('store.clients.edit', compact('client', 'existingClients'));
     }
 
     public function update(Request $request, Client $client): RedirectResponse
     {
-        $this->authorizeAccess($client);
-        $store = Auth::guard('store')->user();
-
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:clients,email,' . $client->id . ',id,store_id,' . $store->id,
+            'email' => 'required|email|unique:clients,email,' . $client->id,
             'phone' => 'nullable|string|max:20',
             'birthday' => 'nullable|date',
             'birth_year' => 'nullable|integer|min:1900|max:' . date('Y'),
@@ -129,7 +116,6 @@ class ClientController extends Controller
 
     public function destroy(Client $client): RedirectResponse
     {
-        $this->authorizeAccess($client);
         $client->delete();
 
         return redirect()->route('store.clients.index')
@@ -139,8 +125,6 @@ class ClientController extends Controller
     // Address Management Methods
     public function storeAddress(Request $request, Client $client): RedirectResponse
     {
-        $this->authorizeAccess($client);
-
         $validated = $request->validate([
             'type' => 'required|in:home,work,other',
             'address_name' => 'required|string|max:255',
@@ -163,8 +147,6 @@ class ClientController extends Controller
     // Emergency Contact Management Methods
     public function storeEmergencyContact(Request $request, Client $client): RedirectResponse
     {
-        $this->authorizeAccess($client);
-
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'email' => 'nullable|email',
@@ -177,26 +159,15 @@ class ClientController extends Controller
 
         return back()->with('success', 'Emergency contact added successfully.');
     }
-
     public function destroyAddress(Client $client, ClientAddress $address): RedirectResponse
     {
-        $this->authorizeAccess($client);
         $address->delete();
         return back()->with('success', 'Address deleted successfully.');
     }
 
     public function destroyEmergencyContact(Client $client, ClientEmergencyContact $emergencyContact): RedirectResponse
     {
-        $this->authorizeAccess($client);
         $emergencyContact->delete();
         return back()->with('success', 'Emergency contact deleted successfully.');
-    }
-
-    private function authorizeAccess(Client $client)
-    {
-        $store = Auth::guard('store')->user();
-        if ($client->store_id !== $store->id) {
-            abort(403, 'Unauthorized access.');
-        }
     }
 }

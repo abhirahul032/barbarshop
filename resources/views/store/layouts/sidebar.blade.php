@@ -109,19 +109,19 @@ $currentRoute = Route::currentRouteName();
 
                 <!-- Client Menu -->
                 <li class="nav-item">
-                    <a class="nav-link menu-link {{ str_contains($currentRoute, 'store.page.client.list') || str_contains($currentRoute, 'store.page.client.loyalty') ? 'active' : '' }}" 
+                    <a class="nav-link menu-link {{ str_contains($currentRoute, 'store.clients.') || str_contains($currentRoute, 'store.page.client.loyalty') ? 'active' : '' }}" 
                        href="#clientbar" 
                        data-bs-toggle="collapse" 
                        role="button" 
-                       aria-expanded="{{ str_contains($currentRoute, 'store.page.client.list') || str_contains($currentRoute, 'store.page.client.loyalty') ? 'true' : 'false' }}" 
+                       aria-expanded="{{ str_contains($currentRoute, 'store.clients.') || str_contains($currentRoute, 'store.page.client.loyalty') ? 'true' : 'false' }}" 
                        aria-controls="clientbar">
                        <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M11.5 15a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3M20.5 15a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"></path><path fill-rule="evenodd" d="M16 5C9.925 5 5 9.925 5 16s4.925 11 11 11 11-4.925 11-11S22.075 5 16 5M3 16C3 8.82 8.82 3 16 3s13 5.82 13 13-5.82 13-13 13S3 23.18 3 16m7.298 2.135a1 1 0 0 1 1.367.363 5.01 5.01 0 0 0 8.67 0 1 1 0 0 1 1.73 1.004 7.013 7.013 0 0 1-12.13 0 1 1 0 0 1 .363-1.367" clip-rule="evenodd"></path></svg> 
                        <span data-key="t-charts">Client</span>
                     </a>
-                    <div class="collapse menu-dropdown {{ str_contains($currentRoute, 'store.page.client.list') || str_contains($currentRoute, 'store.page.client.loyalty') ? 'show' : '' }}" id="clientbar">
+                    <div class="collapse menu-dropdown {{ str_contains($currentRoute, 'store.clients.') || str_contains($currentRoute, 'store.page.client.loyalty') ? 'show' : '' }}" id="clientbar">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
-                                <a href="{{ route('store.page.client.list') }}" class="nav-link {{ $currentRoute == 'store.page.client.list' ? 'active' : '' }}" data-key="Clients-List"> Clients List </a>
+                                <a href="{{ route('store.clients.index') }}" class="nav-link {{ str_contains($currentRoute, 'store.clients.')  ? 'active' : '' }}" data-key="Clients-List"> Clients List </a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ route('store.page.client.loyalty') }}" class="nav-link {{ $currentRoute == 'store.page.client.loyalty' ? 'active' : '' }}" data-key="Client-Loyalty"> Client Loyalty </a>
