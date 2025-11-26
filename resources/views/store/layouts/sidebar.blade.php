@@ -132,26 +132,26 @@ $currentRoute = Route::currentRouteName();
 
                 <!-- Catalog Menu -->
                 <li class="nav-item">
-                    <a class="nav-link menu-link {{ str_contains($currentRoute, 'store.suppliers.') || str_contains($currentRoute, 'store.memberships.') || str_contains($currentRoute, 'store.services.') || str_contains($currentRoute, 'store.page.catalogue.') ? 'active' : '' }}" 
+                    <a class="nav-link menu-link {{ str_contains($currentRoute, 'store.products.') ||  str_contains($currentRoute, 'store.suppliers.') || str_contains($currentRoute, 'store.memberships.') || str_contains($currentRoute, 'store.services.') || str_contains($currentRoute, 'store.page.catalogue.') ? 'active' : '' }}" 
                        href="#CatalogbarCharts" 
                        data-bs-toggle="collapse" 
                        role="button" 
-                       aria-expanded="{{ str_contains($currentRoute, 'store.suppliers.') || str_contains($currentRoute, 'store.memberships.') || str_contains($currentRoute, 'store.services.') || str_contains($currentRoute, 'store.page.catalogue.') ? 'true' : 'false' }}" 
+                       aria-expanded="{{ str_contains($currentRoute, 'store.products.') || str_contains($currentRoute, 'store.suppliers.') || str_contains($currentRoute, 'store.memberships.') || str_contains($currentRoute, 'store.services.') || str_contains($currentRoute, 'store.page.catalogue.') ? 'true' : 'false' }}" 
                        aria-controls="CatalogbarCharts">
                         <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path fill-rule="evenodd" d="M2.586 6.586A2 2 0 0 1 4 6h8a5 5 0 0 1 4 2q.212-.282.465-.536A5 5 0 0 1 20 6h8a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2h-8a3 3 0 0 0-3 3 1 1 0 1 1-2 0 3 3 0 0 0-3-3H4a2 2 0 0 1-2-2V8a2 2 0 0 1 .586-1.414M15 25a5 5 0 0 0-3-1H4V8h8a3 3 0 0 1 3 3zm2 0a5 5 0 0 1 3-1h8V8h-8a3 3 0 0 0-3 3z" clip-rule="evenodd"></path></svg> 
                         <span data-key="t-charts">Catalog</span>
                     </a>
-                    <div class="collapse menu-dropdown {{ str_contains($currentRoute, 'store.suppliers.') || str_contains($currentRoute, 'store.memberships.') || str_contains($currentRoute, 'store.services.') || str_contains($currentRoute, 'store.page.catalogue.') ? 'show' : '' }}" id="CatalogbarCharts">
+                    <div class="collapse menu-dropdown {{ str_contains($currentRoute, 'store.products.') || str_contains($currentRoute, 'store.suppliers.') || str_contains($currentRoute, 'store.memberships.') || str_contains($currentRoute, 'store.services.') || str_contains($currentRoute, 'store.page.catalogue.') ? 'show' : '' }}" id="CatalogbarCharts">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
-                                <a href="#sidebarCatalog" class="nav-link {{ str_contains($currentRoute, 'store.services.') || str_contains($currentRoute, 'store.page.catalogue.services') || str_contains($currentRoute, 'store.memberships.') || str_contains($currentRoute, 'store.page.catalogue.products') ? 'active' : '' }}" 
+                                <a href="#sidebarCatalog" class="nav-link {{ str_contains($currentRoute, 'store.services.') || str_contains($currentRoute, 'store.page.catalogue.services') || str_contains($currentRoute, 'store.memberships.') || str_contains($currentRoute, 'store.products.') ? 'active' : '' }}" 
                                    data-bs-toggle="collapse" 
                                    role="button" 
-                                   aria-expanded="{{ str_contains($currentRoute, 'store.services.') || str_contains($currentRoute, 'store.page.catalogue.services') || str_contains($currentRoute, 'store.memberships.') || str_contains($currentRoute, 'store.page.catalogue.products') ? 'true' : 'false' }}" 
+                                   aria-expanded="{{ str_contains($currentRoute, 'store.services.') || str_contains($currentRoute, 'store.page.catalogue.services') || str_contains($currentRoute, 'store.memberships.') || str_contains($currentRoute, 'store.products.') ? 'true' : 'false' }}" 
                                    aria-controls="sidebarCatalog">
                                     Catalog
                                 </a>
-                                <div class="collapse menu-dropdown {{ str_contains($currentRoute, 'store.services.') || str_contains($currentRoute, 'store.page.catalogue.services') || str_contains($currentRoute, 'store.memberships.') || str_contains($currentRoute, 'store.page.catalogue.products') ? 'show' : '' }}" id="sidebarCatalog">
+                                <div class="collapse menu-dropdown {{ str_contains($currentRoute, 'store.services.') || str_contains($currentRoute, 'store.page.catalogue.services') || str_contains($currentRoute, 'store.memberships.') || str_contains($currentRoute, 'store.products.') ? 'show' : '' }}" id="sidebarCatalog">
                                     <ul class="nav nav-sm flex-column">
                                         <li class="nav-item">
                                             <a href="{{ route('store.services.index') }}" class="nav-link {{ str_contains($currentRoute, 'store.services.') ? 'active' : '' }}"> 
@@ -164,7 +164,7 @@ $currentRoute = Route::currentRouteName();
                                             </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a href="{{ route('store.page.catalogue.products') }}" class="nav-link {{ $currentRoute == 'store.page.catalogue.products' ? 'active' : '' }}">
+                                            <a href="{{ route('store.products.index') }}" class="nav-link {{ $currentRoute == 'store.products' ? 'active' : '' }}">
                                                 Products 
                                             </a>
                                         </li>
